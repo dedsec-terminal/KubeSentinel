@@ -1,0 +1,29 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: disallow-host-network
+  annotations:
+    policies.kyverno.io/title: Disallow Host Network
+    policies.kyverno.io/category: Pod Security
+    policies.kyverno.io/severity: high
+    policies.kyverno.io/description: Host networking is disallowed for project workloads.
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: host-network
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - edge-pune
+                - edge-mumbai
+                - edge-bangalore
+                - kubesentinel-system
+      validate:
+        message: "Host networking is not allowed."
+        pattern:
+          spec:
+            =(hostNetwork): "false"

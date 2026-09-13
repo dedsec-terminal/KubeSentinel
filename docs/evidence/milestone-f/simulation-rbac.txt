@@ -1,0 +1,7 @@
+=======================================================
+ KubeSentinel Milestone F: Controlled Simulations
+=======================================================
+
+[PASS]   rbac-denial            (prevention)   Low-privilege ServiceAccount system:serviceaccount:edge-pune:edge-api-sa denied access to /api/v1/namespaces/kube-system/secrets (HTTP 403 Forbidden) (1.398s)
+
+Summary: Total=1 PASS=1 FAIL=0

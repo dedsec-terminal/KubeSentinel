@@ -1,0 +1,175 @@
+=== FLUENT BIT DAEMONSET & STORAGE STATUS ===
+NAME                        DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE   CONTAINERS   IMAGES                    SELECTOR
+daemonset.apps/fluent-bit   1         1         1       1            1           <none>          74m   fluent-bit   fluent/fluent-bit:3.2.4   app.kubernetes.io/component=telemetry-collector,app.kubernetes.io/name=fluent-bit,app.kubernetes.io/part-of=kubesentinel
+
+NAME                   READY   STATUS    RESTARTS   AGE   IP           NODE                        NOMINATED NODE   READINESS GATES
+pod/fluent-bit-f65qs   1/1     Running   0          13m   10.42.0.53   k3d-kubesentinel-server-0   <none>           <none>
+
+NAME                                 CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                             STORAGECLASS   VOLUMEATTRIBUTESCLASS   REASON   AGE   VOLUMEMODE
+persistentvolume/fluent-bit-varlog   1Gi        ROX            Retain           Bound    observability/fluent-bit-varlog   manual         <unset>                          72m   Filesystem
+
+NAME                                      STATUS   VOLUME              CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE   VOLUMEMODE
+persistentvolumeclaim/fluent-bit-varlog   Bound    fluent-bit-varlog   1Gi        ROX            manual         <unset>                 72m   Filesystem
+
+NAME                          DATA   AGE
+configmap/fluent-bit-config   2      74m
+
+
+=== FLUENT BIT CONFIGURATION (fluent-bit-config ConfigMap) ===
+apiVersion: v1
+data:
+  fluent-bit.conf: |
+    [SERVICE]
+        Flush         1
+        Log_Level     info
+        Parsers_File  parsers.conf
+        Daemon        off
+
+    [INPUT]
+        Name              tail
+        Path              /var/log/containers/*.log
+        Parser            cri
+        Tag               kube.*
+        Mem_Buf_Limit     15MB
+        Skip_Long_Lines   On
+        Refresh_Interval  5
+
+    [FILTER]
+        Name                kubernetes
+        Match               kube.*
+        Kube_URL            https://kubernetes.default.svc:443
+        Kube_CA_File        /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+        Kube_Token_File     /var/run/secrets/kubernetes.io/serviceaccount/token
+        Kube_Tag_Prefix     kube.var.log.containers.
+        Merge_Log           On
+        Keep_Log            Off
+        K8S-Logging.Parser  On
+        K8S-Logging.Exclude On
+        Buffer_Size         64KB
+
+    [FILTER]
+        Name         parser
+        Match        kube.*edge*
+        Key_Name     log
+        Parser       json
+        Reserve_Data On
+
+    [FILTER]
+        Name         parser
+        Match        kube.*falco*
+        Key_Name     log
+        Parser       json
+        Reserve_Data On
+
+    [OUTPUT]
+        Name                  es
+        Match                 *falco*
+        Host                  elasticsearch.observability.svc.cluster.local
+        Port                  9200
+        HTTP_User             ${ES_USER}
+        HTTP_Passwd           ${ES_PASSWORD}
+        Logstash_Format       On
+        Logstash_Prefix       kubesentinel-falco
+        Logstash_DateFormat   %Y.%m.%d
+        Type                  _doc
+        Retry_Limit           5
+        Buffer_Size           10MB
+        Replace_Dots          On
+        Suppress_Type_Name    On
+
+    [OUTPUT]
+        Name                  es
+        Match                 *edge*
+        Host                  elasticsearch.observability.svc.cluster.local
+        Port                  9200
+        HTTP_User             ${ES_USER}
+        HTTP_Passwd           ${ES_PASSWORD}
+        Logstash_Format       On
+        Logstash_Prefix       kubesentinel-app
+        Logstash_DateFormat   %Y.%m.%d
+        Type                  _doc
+        Retry_Limit           5
+        Buffer_Size           10MB
+        Replace_Dots          On
+        Suppress_Type_Name    On
+  parsers.conf: |
+    [PARSER]
+        Name        cri
+        Format      regex
+        Regex       ^(?<time>[^ ]+) (?<stream>stdout|stderr) (?<_p>[^ ]*) (?<log>.*)$
+        Time_Key    time
+        Time_Format %Y-%m-%dT%H:%M:%S.%L%z
+
+    [PARSER]
+        Name        json
+        Format      json
+        Time_Key    time
+        Time_Format %Y-%m-%dT%H:%M:%S.%L%z
+        Time_Keep   On
+kind: ConfigMap
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","data":{"fluent-bit.conf":"[SERVICE]\n    Flush         1\n    Log_Level     info\n    Parsers_File  parsers.conf\n    Daemon        off\n\n[INPUT]\n    Name              tail\n    Path              /var/log/containers/*.log\n    Parser            cri\n    Tag               kube.*\n    Mem_Buf_Limit     15MB\n    Skip_Long_Lines   On\n    Refresh_Interval  5\n\n[FILTER]\n    Name                kubernetes\n    Match               kube.*\n    Kube_URL            https://kubernetes.default.svc:443\n    Kube_CA_File        /var/run/secrets/kubernetes.io/serviceaccount/ca.crt\n    Kube_Token_File     /var/run/secrets/kubernetes.io/serviceaccount/token\n    Kube_Tag_Prefix     kube.var.log.containers.\n    Merge_Log           On\n    Keep_Log            Off\n    K8S-Logging.Parser  On\n    K8S-Logging.Exclude On\n    Buffer_Size         64KB\n\n[FILTER]\n    Name         parser\n    Match        kube.*edge*\n    Key_Name     log\n    Parser       json\n    Reserve_Data On\n\n[FILTER]\n    Name         parser\n    Match        kube.*falco*\n    Key_Name     log\n    Parser       json\n    Reserve_Data On\n\n[OUTPUT]\n    Name                  es\n    Match                 *falco*\n    Host                  elasticsearch.observability.svc.cluster.local\n    Port                  9200\n    HTTP_User             ${ES_USER}\n    HTTP_Passwd           ${ES_PASSWORD}\n    Logstash_Format       On\n    Logstash_Prefix       kubesentinel-falco\n    Logstash_DateFormat   %Y.%m.%d\n    Type                  _doc\n    Retry_Limit           5\n    Buffer_Size           10MB\n    Replace_Dots          On\n    Suppress_Type_Name    On\n\n[OUTPUT]\n    Name                  es\n    Match                 *edge*\n    Host                  elasticsearch.observability.svc.cluster.local\n    Port                  9200\n    HTTP_User             ${ES_USER}\n    HTTP_Passwd           ${ES_PASSWORD}\n    Logstash_Format       On\n    Logstash_Prefix       kubesentinel-app\n    Logstash_DateFormat   %Y.%m.%d\n    Type                  _doc\n    Retry_Limit           5\n    Buffer_Size           10MB\n    Replace_Dots          On\n    Suppress_Type_Name    On\n","parsers.conf":"[PARSER]\n    Name        cri\n    Format      regex\n    Regex       ^(?\u003ctime\u003e[^ ]+) (?\u003cstream\u003estdout|stderr) (?\u003c_p\u003e[^ ]*) (?\u003clog\u003e.*)$\n    Time_Key    time\n    Time_Format %Y-%m-%dT%H:%M:%S.%L%z\n\n[PARSER]\n    Name        json\n    Format      json\n    Time_Key    time\n    Time_Format %Y-%m-%dT%H:%M:%S.%L%z\n    Time_Keep   On\n"},"kind":"ConfigMap","metadata":{"annotations":{},"labels":{"app.kubernetes.io/component":"telemetry-collector","app.kubernetes.io/name":"fluent-bit","app.kubernetes.io/part-of":"kubesentinel"},"name":"fluent-bit-config","namespace":"observability"}}
+  creationTimestamp: "2026-09-13T13:52:30Z"
+  labels:
+    app.kubernetes.io/component: telemetry-collector
+    app.kubernetes.io/name: fluent-bit
+    app.kubernetes.io/part-of: kubesentinel
+  name: fluent-bit-config
+  namespace: observability
+  resourceVersion: "34338"
+  uid: c7426e3a-33bc-4cf6-a55f-152a10687a51
+
+
+=== FLUENT BIT STARTUP & INGESTION LOGS ===
+Fluent Bit v3.2.4
+* Copyright (C) 2015-2024 The Fluent Bit Authors
+* Fluent Bit is a CNCF sub-project under the umbrella of Fluentd
+* https://fluentbit.io
+
+______ _                  _    ______ _ _           _____  _____
+|  ___| |                | |   | ___ (_) |         |____ |/ __  \
+| |_  | |_   _  ___ _ __ | |_  | |_/ /_| |_  __   __   / /`' / /'
+|  _| | | | | |/ _ \ '_ \| __| | ___ \ | __| \ \ / /   \ \  / /
+| |   | | |_| |  __/ | | | |_  | |_/ / | |_   \ V /.___/ /./ /___
+\_|   |_|\__,_|\___|_| |_|\__| \____/|_|\__|   \_/ \____(_)_____/
+
+
+[2026/09/13 14:54:27] [ info] [fluent bit] version=3.2.4, commit=5b0ff04120, pid=1
+[2026/09/13 14:54:27] [ info] [storage] ver=1.5.2, type=memory, sync=normal, checksum=off, max_chunks_up=128
+[2026/09/13 14:54:27] [ info] [simd    ] disabled
+[2026/09/13 14:54:27] [ info] [cmetrics] version=0.9.9
+[2026/09/13 14:54:27] [ info] [ctraces ] version=0.5.7
+[2026/09/13 14:54:27] [ info] [input:tail:tail.0] initializing
+[2026/09/13 14:54:27] [ info] [input:tail:tail.0] storage_strategy='memory' (memory only)
+[2026/09/13 14:54:27] [ info] [filter:kubernetes:kubernetes.0] https=1 host=kubernetes.default.svc port=443
+[2026/09/13 14:54:27] [ info] [filter:kubernetes:kubernetes.0]  token updated
+[2026/09/13 14:54:27] [ info] [filter:kubernetes:kubernetes.0] local POD info OK
+[2026/09/13 14:54:27] [ info] [filter:kubernetes:kubernetes.0] testing connectivity with API server...
+[2026/09/13 14:54:28] [ info] [filter:kubernetes:kubernetes.0] connectivity OK
+[2026/09/13 14:54:28] [ info] [output:es:es.0] worker #0 started
+[2026/09/13 14:54:28] [ info] [output:es:es.0] worker #1 started
+[2026/09/13 14:54:28] [ info] [sp] stream processor started
+[2026/09/13 14:54:28] [ info] [output:es:es.1] worker #0 started
+[2026/09/13 14:54:28] [ info] [output:es:es.1] worker #1 started
+[2026/09/13 14:54:28] [ info] [input:tail:tail.0] inotify_fs_add(): inode=107080 watch_fd=1 name=/var/log/containers/coredns-8db54c48d-jbswh_kube-system_coredns-fb1bd4401e13166cea21a5ca1106f3b45f75db8a24bcd52752baebba681f3580.log
+[2026/09/13 14:54:28] [ info] [input:tail:tail.0] inotify_fs_add(): inode=127544 watch_fd=2 name=/var/log/containers/edge-api-7db6db7d68-ft6jq_edge-pune_edge-api-2e822ee8404040ce7201ec4efe88829be8940c896e2a31bf2b883220ba71d18a.log
+[2026/09/13 14:54:28] [ info] [input:tail:tail.0] inotify_fs_add(): inode=127598 watch_fd=3 name=/var/log/containers/edge-api-8d9f54cc7-ljh8w_edge-mumbai_edge-api-80bbd5fd939bee2108aebbc4880918a814f14eb6283daa12000a2dcbe1dee76c.log
+[2026/09/13 14:54:28] [ info] [input:tail:tail.0] inotify_fs_add(): inode=139490 watch_fd=4 name=/var/log/containers/edge-api-b596774fb-gxmrn_edge-bangalore_edge-api-151d1109999967023b7da4a085b514f2427719e1327d72d1c98b97ec7d15c922.log
+[2026/09/13 14:54:28] [ info] [input:tail:tail.0] inotify_fs_add(): inode=139498 watch_fd=5 name=/var/log/containers/edge-worker-7555fb84b7-d2pnj_kubesentinel-system_edge-worker-170bc131f26b7e8597a1956dc03e7196033c43aa41ad274065439f2313acae95.log
+[2026/09/13 14:54:28] [ info] [input:tail:tail.0] inotify_fs_add(): inode=361263 watch_fd=6 name=/var/log/containers/elasticsearch-6b747cb48d-mh4df_observability_elasticsearch-785b7fe170efd613055786d091627a02231943787b868c6deb24128aade73584.log
+[2026/09/13 14:54:28] [ info] [input:tail:tail.0] inotify_fs_add(): inode=361447 watch_fd=7 name=/var/log/containers/kibana-77fbb64595-lf65p_observability_kibana-1a8c80303149fd8a1c340928e8042615908c39b8a3f95f62964f3d22e7632adc.log
+[2026/09/13 14:54:28] [ info] [input:tail:tail.0] inotify_fs_add(): inode=140890 watch_fd=8 name=/var/log/containers/kyverno-admission-controller-86cbbb5545-pn4fq_kyverno_kyverno-4e97b6f7ccd067164c62c04632837ee8af8486003d0c612810e5f4164eb4d006.log
+[2026/09/13 14:54:28] [ info] [input:tail:tail.0] inotify_fs_add(): inode=140810 watch_fd=9 name=/var/log/containers/kyverno-admission-controller-86cbbb5545-pn4fq_kyverno_kyverno-pre-319f043ca43cdc22fc2fdf3ce74997687fe515890ff7f569d8025874b88ce125.log
+[2026/09/13 14:54:28] [ info] [input:tail:tail.0] inotify_fs_add(): inode=381160 watch_fd=10 name=/var/log/containers/kyverno-background-controller-6d7d9488f5-qkhtz_kyverno_controller-4a333e8a4c5980a48852e62d27c99c4c565bd4fb5069766f3e5c145d79dae991.log
+[2026/09/13 14:54:28] [ info] [input:tail:tail.0] inotify_fs_add(): inode=367431 watch_fd=11 name=/var/log/containers/kyverno-background-controller-6d7d9488f5-qkhtz_kyverno_controller-d7e4aa848ebc1f48281d41de53a2497e2fb5bf9b6a31a36be98993d35473ea0a.log
+[2026/09/13 14:54:28] [ info] [input:tail:tail.0] inotify_fs_add(): inode=367433 watch_fd=12 name=/var/log/containers/kyverno-cleanup-controller-df9999f4f-hzj6r_kyverno_controller-56122e8f34a586fe4056b3c4ba868e9a7db5d79b40a69782f7422b8d4216e976.log
+[2026/09/13 14:54:28] [ info] [input:tail:tail.0] inotify_fs_add(): inode=140855 watch_fd=13 name=/var/log/containers/kyverno-cleanup-controller-df9999f4f-hzj6r_kyverno_controller-9b9ded74f9313732e73a9af7aebdcd609d906414b7dd829c66088be53d128f97.log
+[2026/09/13 14:54:28] [ info] [input:tail:tail.0] inotify_fs_add(): inode=140847 watch_fd=14 name=/var/log/containers/kyverno-reports-controller-85795c5f5-lbdwx_kyverno_controller-e1b5002475eecc2e85aac1c15df6abed905ccb10c53d2fda6c20b65c9d1b381f.log
+[2026/09/13 14:54:28] [ info] [input:tail:tail.0] inotify_fs_add(): inode=126371 watch_fd=15 name=/var/log/containers/local-path-provisioner-5d9d9885bc-9mq8w_kube-system_local-path-provisioner-92c90382e9008b515bd0a028f950cb9c3d74554c46c003afe969cca06ec866b8.log
+[2026/09/13 14:54:28] [ info] [input:tail:tail.0] inotify_fs_add(): inode=139632 watch_fd=16 name=/var/log/containers/redis-767dd7dbb9-l7mx2_kubesentinel-system_redis-1a26a74afba563e6ac857963f4637e303d8f100e63b1f51e5396e0088e8ea587.log
+[2026/09/13 14:54:28] [ info] [input:tail:tail.0] inotify_fs_add(): inode=372968 watch_fd=17 name=/var/log/containers/falco-945s5_security-agents_falco-09de23245c6dc3f9a7d317fdbc2707b38d3fa913ab1e388a76d191a48bda77db.log
+[2026/09/13 14:54:28] [ info] [input:tail:tail.0] inotify_fs_add(): inode=380019 watch_fd=18 name=/var/log/containers/fluent-bit-f65qs_observability_fluent-bit-7ba3524621be3d3b9526dcd25935a8d09d7c8dde0068bef883ca8a65a162bca3.log
+[2026/09/13 15:00:12] [ info] [input:tail:tail.0] inotify_fs_add(): inode=372918 watch_fd=19 name=/var/log/containers/network-unauth-probe_observability_probe-b8f7472a4d5d509b4f8666974ffdf4009cac42006d28eb867de6c9a78cb81f44.log
+[2026/09/13 15:01:08] [ info] [input:tail:tail.0] inotify_fs_remove(): inode=372918 watch_fd=19

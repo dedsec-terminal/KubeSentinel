@@ -1,0 +1,56 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: kubesentinel-system
+  labels:
+    app.kubernetes.io/part-of: kubesentinel
+    kubesentinel.io/policy: default-deny
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: edge-pune
+  labels:
+    app.kubernetes.io/part-of: kubesentinel
+    kubesentinel.io/policy: default-deny
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: edge-mumbai
+  labels:
+    app.kubernetes.io/part-of: kubesentinel
+    kubesentinel.io/policy: default-deny
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: edge-bangalore
+  labels:
+    app.kubernetes.io/part-of: kubesentinel
+    kubesentinel.io/policy: default-deny
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress

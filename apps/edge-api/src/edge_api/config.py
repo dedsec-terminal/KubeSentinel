@@ -72,6 +72,9 @@ class Settings(BaseModel):
     edge_site: EdgeSite = Field(default="pune")
     namespace: str = Field(default="local-compose")
     service: str = Field(default="edge-api")
+    pod_name: str | None = Field(default=None)
+    node_name: str | None = Field(default=None)
+    k8s_namespace: str | None = Field(default=None)
 
 
 def load_settings(
@@ -97,14 +100,27 @@ def load_settings(
     except (ValueError, TypeError):
         redis_port = 6379
 
+    pod_name = overrides.get("pod_name") or resolve(
+        "KUBERNETES_POD_NAME", resolve("POD_NAME", None)
+    )
+    node_name = overrides.get("node_name") or resolve(
+        "KUBERNETES_NODE_NAME", resolve("NODE_NAME", None)
+    )
+    k8s_namespace = overrides.get("k8s_namespace") or resolve(
+        "KUBERNETES_NAMESPACE", resolve("POD_NAMESPACE", None)
+    )
+
     return Settings(
         redis_host=resolve("REDIS_HOST", "127.0.0.1"),
         redis_port=redis_port,
         redis_producer_password=resolve("REDIS_PRODUCER_PASSWORD", ""),
         redis_stream=resolve("REDIS_STREAM", "security-events"),
-        edge_site=resolve("EDGE_SITE", "pune"),
+        edge_site=overrides.get("edge_site") or resolve("EDGE_SITE", "pune"),
         namespace=resolve("NAMESPACE", "local-compose"),
         service=resolve("SERVICE", "edge-api"),
+        pod_name=pod_name,
+        node_name=node_name,
+        k8s_namespace=k8s_namespace,
     )
 
 

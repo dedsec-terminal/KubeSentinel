@@ -22,4 +22,12 @@ build/
 *.acl
 deploy/compose/redis/users.acl
 .agents/
+artifacts/
+scratch/
+AGENT.md
+AGENTS.md
+agent.md
+agents.md
+ORIGINAL_REQUEST.md
+PROJECT.md
 # Keep sanitized evidence under docs/evidence/ tracked.

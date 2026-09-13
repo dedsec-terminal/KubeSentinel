@@ -15,6 +15,8 @@ import pytest
 
 from scripts.bootstrap import bootstrap_local
 
+pytestmark = pytest.mark.integration
+
 ROOT = Path(__file__).resolve().parents[2]
 REDIS_IMAGE = "redis:7.4.2-alpine"
 

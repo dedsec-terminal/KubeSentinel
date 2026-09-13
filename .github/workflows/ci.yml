@@ -1,0 +1,154 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  code-quality-and-unit-tests:
+    name: Code Quality & CI-Safe Test Suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set up Python 3.14
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
+        with:
+          python-version: "3.14"
+          allow-prereleases: true
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Verify Git whitespace and diff formatting
+        run: |
+          git diff --check
+
+      - name: Ruff linting check
+        run: |
+          python -m ruff check .
+
+      - name: Python compileall verification
+        run: |
+          python -m compileall scripts tests simulations detections docs/detection-tuning
+
+      - name: Detection schema and metadata validation (offline / without live ES)
+        run: |
+          python scripts/kubesentinel.py detection-validate --no-es
+
+      - name: Telemetry and simulation schema fixtures validation
+        run: |
+          python -m pytest tests/telemetry/ tests/simulations/ -v
+
+      - name: CI-safe test suite (excluding integration tests requiring live cluster/services)
+        run: |
+          python -m pytest -m "not integration" --durations=10
+
+  manifest-and-policy-validation:
+    name: Kubernetes Static Manifest & Kyverno Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set up Python 3.14
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
+        with:
+          python-version: "3.14"
+          allow-prereleases: true
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]" pyyaml
+
+      - name: Kubernetes static YAML syntax validation
+        run: |
+          python -c "
+          import sys
+          from pathlib import Path
+          import yaml
+          manifests = list(Path('kubernetes').rglob('*.yaml')) + list(Path('kubernetes').rglob('*.yml'))
+          assert len(manifests) > 0, 'No Kubernetes manifests found under kubernetes/'
+          for mf in manifests:
+              try:
+                  list(yaml.safe_load_all(mf.read_text(encoding='utf-8')))
+              except Exception as exc:
+                  print(f'ERROR parsing {mf}: {exc}', file=sys.stderr)
+                  sys.exit(1)
+          print(f'Successfully parsed and validated {len(manifests)} Kubernetes manifests.')
+          "
+
+      - name: Kubernetes manifest compliance and security context unit tests
+        run: |
+          python -m pytest tests/unit/test_k8s_manifests.py tests/unit/test_fluentbit_config.py tests/unit/test_es_templates.py tests/unit/test_compose.py -v
+
+      - name: Kyverno policy static and fixture validation without cluster
+        run: |
+          python -m pytest tests/unit/test_k8s_manifests.py -k "test_kyverno" -v
+          python -c "
+          import sys
+          from pathlib import Path
+          import yaml
+          policy_dir = Path('policies/kyverno')
+          policies = list(policy_dir.glob('*.yaml'))
+          assert len(policies) == 9, f'Expected 9 Kyverno policies, found {len(policies)}'
+          for p in policies:
+              doc = yaml.safe_load(p.read_text(encoding='utf-8'))
+              assert doc.get('kind') == 'ClusterPolicy', f'{p.name} is not a ClusterPolicy'
+              spec = doc.get('spec', {})
+              action = spec.get('validationFailureAction')
+              assert action == 'Enforce', f'{p.name} validationFailureAction is not Enforce'
+          print(f'Successfully verified {len(policies)} Kyverno ClusterPolicies statically.')
+          "
+
+      - name: Set up Helm
+        uses: azure/setup-helm@fe7b79cd5ee1e45176fcad797de68ecaf3ca4814 # v4.3.0
+
+      - name: Helm lint and template validation for Falco
+        run: |
+          helm repo add falcosecurity https://falcosecurity.github.io/charts
+          helm repo update
+          helm template falco falcosecurity/falco --version 4.21.1 --values kubernetes/security-agents/falco/values.yaml > /dev/null
+          python -m pytest tests/unit/test_falco_rules.py -v
+
+  dockerfile-lint:
+    name: Dockerfile Linting (Hadolint)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Hadolint check for apps/edge-api/Dockerfile
+        uses: hadolint/hadolint-action@54c3013b9bc7825d730f07d82ca57e841a468e81 # v3.1.0
+        with:
+          dockerfile: apps/edge-api/Dockerfile
+          failure-threshold: warning
+
+      - name: Hadolint check for apps/edge-worker/Dockerfile
+        uses: hadolint/hadolint-action@54c3013b9bc7825d730f07d82ca57e841a468e81 # v3.1.0
+        with:
+          dockerfile: apps/edge-worker/Dockerfile
+          failure-threshold: warning
+
+      - name: Set up Python for Dockerfile unit tests
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
+        with:
+          python-version: "3.14"
+          allow-prereleases: true
+
+      - name: Run Dockerfile unit validation tests
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+          python -m pytest tests/unit/test_dockerfile.py -v

@@ -1,0 +1,24 @@
+=== CLUSTER POLICIES ===
+NAME                               ADMISSION   BACKGROUND   READY   AGE   FAILURE POLICY   VALIDATE   MUTATE   GENERATE   VERIFY IMAGES   MESSAGE
+disallow-host-network              true        true         True    50m                    1          0        0          0               Ready
+disallow-host-path                 true        true         True    50m                    1          0        0          0               Ready
+disallow-latest-tag                true        true         True    50m                    1          0        0          0               Ready
+disallow-privilege-escalation      true        true         True    50m                    1          0        0          0               Ready
+disallow-privileged-containers     true        true         True    50m                    1          0        0          0               Ready
+require-drop-all-capabilities      true        true         True    50m                    1          0        0          0               Ready
+require-resource-requests-limits   true        true         True    50m                    1          0        0          0               Ready
+require-run-as-non-root            true        true         True    50m                    1          0        0          0               Ready
+require-runtime-default-seccomp    true        true         True    50m                    1          0        0          0               Ready
+
+
+=== CLUSTER POLICY DETAILS ===
+NAME                               ACTION    BACKGROUND   READY
+disallow-host-network              Enforce   true         <none>
+disallow-host-path                 Enforce   true         <none>
+disallow-latest-tag                Enforce   true         <none>
+disallow-privilege-escalation      Enforce   true         <none>
+disallow-privileged-containers     Enforce   true         <none>
+require-drop-all-capabilities      Enforce   true         <none>
+require-resource-requests-limits   Enforce   true         <none>
+require-run-as-non-root            Enforce   true         <none>
+require-runtime-default-seccomp    Enforce   true         <none>

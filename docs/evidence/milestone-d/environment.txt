@@ -1,0 +1,29 @@
+=== KUBERNETES CLUSTER INFO ===
+Kubernetes control plane is running at https://127.0.0.1:6443
+CoreDNS is running at https://127.0.0.1:6443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+
+
+=== NODES ===
+NAME                        STATUS   ROLES           AGE    VERSION        INTERNAL-IP   EXTERNAL-IP   OS-IMAGE           KERNEL-VERSION                      CONTAINER-RUNTIME
+k3d-kubesentinel-server-0   Ready    control-plane   123m   v1.35.5+k3s1   172.19.0.3    <none>        K3s v1.35.5+k3s1   6.18.33.1-microsoft-standard-WSL2   containerd://2.2.3-k3s1
+
+
+=== NAMESPACES ===
+NAME                  STATUS   AGE    LABELS
+default               Active   123m   kubernetes.io/metadata.name=default
+edge-bangalore        Active   116m   app.kubernetes.io/part-of=kubesentinel,kubernetes.io/metadata.name=edge-bangalore,kubesentinel.io/network-zone=edge,pod-security.kubernetes.io/audit-version=latest,pod-security.kubernetes.io/audit=restricted,pod-security.kubernetes.io/enforce-version=latest,pod-security.kubernetes.io/enforce=restricted,pod-security.kubernetes.io/warn-version=latest,pod-security.kubernetes.io/warn=restricted
+edge-mumbai           Active   116m   app.kubernetes.io/part-of=kubesentinel,kubernetes.io/metadata.name=edge-mumbai,kubesentinel.io/network-zone=edge,pod-security.kubernetes.io/audit-version=latest,pod-security.kubernetes.io/audit=restricted,pod-security.kubernetes.io/enforce-version=latest,pod-security.kubernetes.io/enforce=restricted,pod-security.kubernetes.io/warn-version=latest,pod-security.kubernetes.io/warn=restricted
+edge-pune             Active   116m   app.kubernetes.io/part-of=kubesentinel,kubernetes.io/metadata.name=edge-pune,kubesentinel.io/network-zone=edge,pod-security.kubernetes.io/audit-version=latest,pod-security.kubernetes.io/audit=restricted,pod-security.kubernetes.io/enforce-version=latest,pod-security.kubernetes.io/enforce=restricted,pod-security.kubernetes.io/warn-version=latest,pod-security.kubernetes.io/warn=restricted
+kube-node-lease       Active   123m   kubernetes.io/metadata.name=kube-node-lease
+kube-public           Active   123m   kubernetes.io/metadata.name=kube-public
+kube-system           Active   123m   kubernetes.io/metadata.name=kube-system
+kubesentinel-system   Active   116m   app.kubernetes.io/part-of=kubesentinel,kubernetes.io/metadata.name=kubesentinel-system,kubesentinel.io/network-zone=system,pod-security.kubernetes.io/audit-version=latest,pod-security.kubernetes.io/audit=restricted,pod-security.kubernetes.io/enforce-version=latest,pod-security.kubernetes.io/enforce=restricted,pod-security.kubernetes.io/warn-version=latest,pod-security.kubernetes.io/warn=restricted
+kyverno               Active   56m    app.kubernetes.io/part-of=kyverno,kubernetes.io/metadata.name=kyverno,pod-security.kubernetes.io/audit-version=latest,pod-security.kubernetes.io/audit=privileged,pod-security.kubernetes.io/enforce-version=latest,pod-security.kubernetes.io/enforce=privileged,pod-security.kubernetes.io/warn-version=latest,pod-security.kubernetes.io/warn=privileged
+observability         Active   116m   kubernetes.io/metadata.name=observability,pod-security.kubernetes.io/audit-version=latest,pod-security.kubernetes.io/audit=baseline,pod-security.kubernetes.io/enforce-version=latest,pod-security.kubernetes.io/enforce=baseline,pod-security.kubernetes.io/warn-version=latest,pod-security.kubernetes.io/warn=baseline
+
+
+=== SYSTEM & PYTHON INFO ===
+OS: Windows-11-10.0.26200-SP0
+Python: 3.14.2 (tags/v3.14.2:df79316, Dec  5 2025, 17:18:21) [MSC v.1944 64 bit (AMD64)]

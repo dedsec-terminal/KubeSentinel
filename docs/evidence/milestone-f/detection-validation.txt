@@ -1,0 +1,34 @@
+=================================================================
+ KubeSentinel Milestone F: Detection & Tuning Validator
+=================================================================
+
+Detection Rules (3 rules):
+
+  [PASS] falco-runtime-alerts-general.yaml (kubesentinel-falco-runtime-alerts-general)
+         Schema: VALID
+         Fields: VALID
+         Query Execution: PASS (33 live hits)
+
+  [PASS] high-severity-app-event.yaml (kubesentinel-app-high-severity-event)
+         Schema: VALID
+         Fields: VALID
+         Query Execution: PASS (18 live hits)
+
+  [PASS] unexpected-shell.yaml (kubesentinel-falco-unexpected-shell)
+         Schema: VALID
+         Fields: VALID
+         Query Execution: PASS (33 live hits)
+
+Tuning Study Artifacts:
+
+  [PASS] docs/detection-tuning/tuning_metrics.json
+         Controlled Retention: 100.0% (23/23 retained)
+         Benign Suppression: 100.0% (8/8 suppressed)
+         Lab Noise Reduction: 100.0% (Overall Reduction: 25.81%)
+         Live V1/V2 Query Execution: PASS
+
+  [PASS] docs/detection-tuning/shell-detection.md
+
+-----------------------------------------------------------------
+Summary: Total=5 PASS=5 FAIL=0
+-----------------------------------------------------------------

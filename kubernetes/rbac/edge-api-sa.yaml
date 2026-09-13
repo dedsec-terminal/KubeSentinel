@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: edge-api-sa
+  namespace: edge-pune
+automountServiceAccountToken: false
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: edge-api-sa
+  namespace: edge-mumbai
+automountServiceAccountToken: false
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: edge-api-sa
+  namespace: edge-bangalore
+automountServiceAccountToken: false

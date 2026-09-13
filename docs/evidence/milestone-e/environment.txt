@@ -1,0 +1,93 @@
+=== KUBERNETES CLUSTER INFO ===
+Kubernetes control plane is running at https://127.0.0.1:6443
+CoreDNS is running at https://127.0.0.1:6443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+
+
+=== NODES ===
+NAME                        STATUS   ROLES           AGE     VERSION        INTERNAL-IP   EXTERNAL-IP   OS-IMAGE           KERNEL-VERSION                      CONTAINER-RUNTIME
+k3d-kubesentinel-server-0   Ready    control-plane   7h18m   v1.35.5+k3s1   172.19.0.3    <none>        K3s v1.35.5+k3s1   6.18.33.1-microsoft-standard-WSL2   containerd://2.2.3-k3s1
+
+
+=== ALL PODS ACROSS NAMESPACES ===
+NAMESPACE             NAME                                             READY   STATUS    RESTARTS      AGE     IP           NODE                        NOMINATED NODE   READINESS GATES
+edge-bangalore        edge-api-b596774fb-gxmrn                         1/1     Running   0             5h16m   10.42.0.34   k3d-kubesentinel-server-0   <none>           <none>
+edge-mumbai           edge-api-8d9f54cc7-ljh8w                         1/1     Running   0             5h16m   10.42.0.33   k3d-kubesentinel-server-0   <none>           <none>
+edge-pune             edge-api-7db6db7d68-ft6jq                        1/1     Running   0             5h16m   10.42.0.32   k3d-kubesentinel-server-0   <none>           <none>
+kube-system           coredns-8db54c48d-jbswh                          1/1     Running   0             7h18m   10.42.0.2    k3d-kubesentinel-server-0   <none>           <none>
+kube-system           local-path-provisioner-5d9d9885bc-9mq8w          1/1     Running   0             7h18m   10.42.0.3    k3d-kubesentinel-server-0   <none>           <none>
+kubesentinel-system   edge-worker-7555fb84b7-d2pnj                     1/1     Running   0             5h16m   10.42.0.35   k3d-kubesentinel-server-0   <none>           <none>
+kubesentinel-system   redis-767dd7dbb9-l7mx2                           1/1     Running   0             7h6m    10.42.0.12   k3d-kubesentinel-server-0   <none>           <none>
+kyverno               kyverno-admission-controller-86cbbb5545-pn4fq    1/1     Running   0             6h11m   10.42.0.23   k3d-kubesentinel-server-0   <none>           <none>
+kyverno               kyverno-background-controller-6d7d9488f5-qkhtz   1/1     Running   3 (45m ago)   6h11m   10.42.0.21   k3d-kubesentinel-server-0   <none>           <none>
+kyverno               kyverno-cleanup-controller-df9999f4f-hzj6r       1/1     Running   1 (52m ago)   6h11m   10.42.0.22   k3d-kubesentinel-server-0   <none>           <none>
+kyverno               kyverno-reports-controller-85795c5f5-lbdwx       1/1     Running   0             6h11m   10.42.0.24   k3d-kubesentinel-server-0   <none>           <none>
+observability         elasticsearch-6b747cb48d-mh4df                   1/1     Running   0             131m    10.42.0.39   k3d-kubesentinel-server-0   <none>           <none>
+observability         fluent-bit-f65qs                                 1/1     Running   0             12m     10.42.0.53   k3d-kubesentinel-server-0   <none>           <none>
+observability         kibana-77fbb64595-lf65p                          1/1     Running   0             120m    10.42.0.42   k3d-kubesentinel-server-0   <none>           <none>
+security-agents       falco-945s5                                      1/1     Running   0             42m     10.42.0.49   k3d-kubesentinel-server-0   <none>           <none>
+
+
+=== NAMESPACES & PSA LABELS ===
+NAME                  STATUS   AGE     LABELS
+default               Active   7h18m   kubernetes.io/metadata.name=default
+edge-bangalore        Active   7h11m   app.kubernetes.io/part-of=kubesentinel,kubernetes.io/metadata.name=edge-bangalore,kubesentinel.io/network-zone=edge,pod-security.kubernetes.io/audit-version=latest,pod-security.kubernetes.io/audit=restricted,pod-security.kubernetes.io/enforce-version=latest,pod-security.kubernetes.io/enforce=restricted,pod-security.kubernetes.io/warn-version=latest,pod-security.kubernetes.io/warn=restricted
+edge-mumbai           Active   7h11m   app.kubernetes.io/part-of=kubesentinel,kubernetes.io/metadata.name=edge-mumbai,kubesentinel.io/network-zone=edge,pod-security.kubernetes.io/audit-version=latest,pod-security.kubernetes.io/audit=restricted,pod-security.kubernetes.io/enforce-version=latest,pod-security.kubernetes.io/enforce=restricted,pod-security.kubernetes.io/warn-version=latest,pod-security.kubernetes.io/warn=restricted
+edge-pune             Active   7h11m   app.kubernetes.io/part-of=kubesentinel,kubernetes.io/metadata.name=edge-pune,kubesentinel.io/network-zone=edge,pod-security.kubernetes.io/audit-version=latest,pod-security.kubernetes.io/audit=restricted,pod-security.kubernetes.io/enforce-version=latest,pod-security.kubernetes.io/enforce=restricted,pod-security.kubernetes.io/warn-version=latest,pod-security.kubernetes.io/warn=restricted
+kube-node-lease       Active   7h18m   kubernetes.io/metadata.name=kube-node-lease
+kube-public           Active   7h18m   kubernetes.io/metadata.name=kube-public
+kube-system           Active   7h18m   kubernetes.io/metadata.name=kube-system
+kubesentinel-system   Active   7h11m   app.kubernetes.io/part-of=kubesentinel,kubernetes.io/metadata.name=kubesentinel-system,kubesentinel.io/network-zone=system,pod-security.kubernetes.io/audit-version=latest,pod-security.kubernetes.io/audit=restricted,pod-security.kubernetes.io/enforce-version=latest,pod-security.kubernetes.io/enforce=restricted,pod-security.kubernetes.io/warn-version=latest,pod-security.kubernetes.io/warn=restricted
+kyverno               Active   6h11m   app.kubernetes.io/part-of=kyverno,kubernetes.io/metadata.name=kyverno,pod-security.kubernetes.io/audit-version=latest,pod-security.kubernetes.io/audit=privileged,pod-security.kubernetes.io/enforce-version=latest,pod-security.kubernetes.io/enforce=privileged,pod-security.kubernetes.io/warn-version=latest,pod-security.kubernetes.io/warn=privileged
+observability         Active   7h11m   kubernetes.io/metadata.name=observability,pod-security.kubernetes.io/audit-version=latest,pod-security.kubernetes.io/audit=baseline,pod-security.kubernetes.io/enforce-version=latest,pod-security.kubernetes.io/enforce=baseline,pod-security.kubernetes.io/warn-version=latest,pod-security.kubernetes.io/warn=baseline
+security-agents       Active   54m     kubernetes.io/metadata.name=security-agents,name=security-agents,pod-security.kubernetes.io/audit-version=latest,pod-security.kubernetes.io/audit=privileged,pod-security.kubernetes.io/enforce-version=latest,pod-security.kubernetes.io/enforce=privileged,pod-security.kubernetes.io/warn-version=latest,pod-security.kubernetes.io/warn=privileged
+
+
+=== SERVICES (CLUSTERIP ONLY) ===
+NAMESPACE             NAME                                    TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                  AGE
+default               kubernetes                              ClusterIP   10.43.0.1       <none>        443/TCP                  7h18m
+edge-bangalore        edge-api                                ClusterIP   10.43.100.197   <none>        8000/TCP                 7h11m
+edge-mumbai           edge-api                                ClusterIP   10.43.222.78    <none>        8000/TCP                 7h11m
+edge-pune             edge-api                                ClusterIP   10.43.224.81    <none>        8000/TCP                 7h11m
+kube-system           kube-dns                                ClusterIP   10.43.0.10      <none>        53/UDP,53/TCP,9153/TCP   7h18m
+kubesentinel-system   redis                                   ClusterIP   10.43.197.193   <none>        6379/TCP                 7h11m
+kyverno               kyverno-background-controller-metrics   ClusterIP   10.43.57.239    <none>        8000/TCP                 6h11m
+kyverno               kyverno-cleanup-controller              ClusterIP   10.43.34.67     <none>        443/TCP                  6h11m
+kyverno               kyverno-cleanup-controller-metrics      ClusterIP   10.43.20.148    <none>        8000/TCP                 6h11m
+kyverno               kyverno-reports-controller-metrics      ClusterIP   10.43.111.133   <none>        8000/TCP                 6h11m
+kyverno               kyverno-svc                             ClusterIP   10.43.176.200   <none>        443/TCP                  6h11m
+kyverno               kyverno-svc-metrics                     ClusterIP   10.43.58.165    <none>        8000/TCP                 6h11m
+observability         elasticsearch                           ClusterIP   10.43.82.168    <none>        9200/TCP                 134m
+observability         kibana                                  ClusterIP   10.43.28.255    <none>        5601/TCP                 129m
+
+
+=== NETWORKPOLICIES ===
+NAMESPACE             NAME                     POD-SELECTOR                           AGE
+edge-bangalore        allow-dns-egress         <none>                                 6h20m
+edge-bangalore        default-deny-all         <none>                                 6h20m
+edge-bangalore        edge-api-policy          app=edge-api                           6h20m
+edge-mumbai           allow-dns-egress         <none>                                 6h20m
+edge-mumbai           default-deny-all         <none>                                 6h20m
+edge-mumbai           edge-api-policy          app=edge-api                           6h20m
+edge-pune             allow-dns-egress         <none>                                 6h20m
+edge-pune             default-deny-all         <none>                                 6h20m
+edge-pune             edge-api-policy          app=edge-api                           6h20m
+kubesentinel-system   allow-dns-egress         <none>                                 6h20m
+kubesentinel-system   default-deny-all         <none>                                 6h20m
+kubesentinel-system   edge-worker-policy       app=edge-worker                        6h20m
+kubesentinel-system   redis-access             app=redis                              6h20m
+kubesentinel-system   redis-bootstrap-policy   app=redis-bootstrap                    6h20m
+observability         allow-dns-egress         <none>                                 30m
+observability         default-deny-all         <none>                                 30m
+observability         elasticsearch-policy     app.kubernetes.io/name=elasticsearch   30m
+observability         fluent-bit-policy        app.kubernetes.io/name=fluent-bit      30m
+observability         kibana-policy            app.kubernetes.io/name=kibana          30m
+security-agents       allow-dns-egress         <none>                                 30m
+security-agents       default-deny-all         <none>                                 30m
+security-agents       falco-health-policy      app.kubernetes.io/name=falco           30m
+
+
+=== SYSTEM & PYTHON INFO ===
+OS: Windows-11-10.0.26200-SP0
+Python: 3.14.2 (tags/v3.14.2:df79316, Dec  5 2025, 17:18:21) [MSC v.1944 64 bit (AMD64)]

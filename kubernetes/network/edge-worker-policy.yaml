@@ -1,0 +1,50 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: edge-worker-policy
+  namespace: kubesentinel-system
+  labels:
+    app.kubernetes.io/part-of: kubesentinel
+    kubesentinel.io/policy: edge-worker-traffic
+spec:
+  podSelector:
+    matchLabels:
+      app: edge-worker
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress: []
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: redis
+      ports:
+        - protocol: TCP
+          port: 6379
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: redis-bootstrap-policy
+  namespace: kubesentinel-system
+  labels:
+    app.kubernetes.io/part-of: kubesentinel
+    kubesentinel.io/policy: redis-bootstrap-traffic
+spec:
+  podSelector:
+    matchLabels:
+      app: redis-bootstrap
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress: []
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app: redis
+      ports:
+        - protocol: TCP
+          port: 6379

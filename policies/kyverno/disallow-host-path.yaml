@@ -1,0 +1,30 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: disallow-host-path
+  annotations:
+    policies.kyverno.io/title: Disallow hostPath Volumes
+    policies.kyverno.io/category: Pod Security
+    policies.kyverno.io/severity: high
+    policies.kyverno.io/description: hostPath volumes are disallowed for project workloads.
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: host-path
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - edge-pune
+                - edge-mumbai
+                - edge-bangalore
+                - kubesentinel-system
+      validate:
+        message: "hostPath volumes are not allowed."
+        pattern:
+          spec:
+            =(volumes):
+              - X(hostPath): "!*"

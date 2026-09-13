@@ -1,0 +1,50 @@
+Running Kubernetes Validation Checks...
+[PASS]   psa_labels:kubesentinel-system           enforce=restricted, audit=restricted, warn=restricted (expected: restricted)
+[PASS]   psa_labels:edge-pune                     enforce=restricted, audit=restricted, warn=restricted (expected: restricted)
+[PASS]   psa_labels:edge-mumbai                   enforce=restricted, audit=restricted, warn=restricted (expected: restricted)
+[PASS]   psa_labels:edge-bangalore                enforce=restricted, audit=restricted, warn=restricted (expected: restricted)
+[PASS]   psa_labels:observability                 enforce=baseline, audit=baseline, warn=baseline (expected: baseline)
+[PASS]   psa_admission_rejection                  Admission controller successfully rejected privileged pod with PodSecurity violation
+[PASS]   sa_automount_false:edge-pune/edge-api-sa automountServiceAccountToken is explicitly false
+[PASS]   sa_zero_perm:edge-pune/edge-api-sa:list_pods Denied list pods as expected
+[PASS]   sa_zero_perm:edge-pune/edge-api-sa:get_secrets Denied get secrets as expected
+[PASS]   sa_automount_false:edge-mumbai/edge-api-sa automountServiceAccountToken is explicitly false
+[PASS]   sa_zero_perm:edge-mumbai/edge-api-sa:list_pods Denied list pods as expected
+[PASS]   sa_zero_perm:edge-mumbai/edge-api-sa:get_secrets Denied get secrets as expected
+[PASS]   sa_automount_false:edge-bangalore/edge-api-sa automountServiceAccountToken is explicitly false
+[PASS]   sa_zero_perm:edge-bangalore/edge-api-sa:list_pods Denied list pods as expected
+[PASS]   sa_zero_perm:edge-bangalore/edge-api-sa:get_secrets Denied get secrets as expected
+[PASS]   sa_automount_false:kubesentinel-system/edge-worker-sa automountServiceAccountToken is explicitly false
+[PASS]   sa_zero_perm:kubesentinel-system/edge-worker-sa:list_pods Denied list pods as expected
+[PASS]   sa_zero_perm:kubesentinel-system/edge-worker-sa:get_secrets Denied get secrets as expected
+[PASS]   sa_automount_false:kubesentinel-system/redis-sa automountServiceAccountToken is explicitly false
+[PASS]   sa_zero_perm:kubesentinel-system/redis-sa:list_pods Denied list pods as expected
+[PASS]   sa_zero_perm:kubesentinel-system/redis-sa:get_secrets Denied get secrets as expected
+[PASS]   pod_runAsNonRoot:edge-pune/edge-api      Pod runAsNonRoot=true
+[PASS]   pod_seccomp:edge-pune/edge-api           Pod seccompProfile=RuntimeDefault
+[PASS]   container_hardening:edge-pune/edge-api/edge-api readOnlyRootFilesystem=true, allowPrivilegeEscalation=false, runAsNonRoot=true, drop=['ALL']
+[PASS]   resources_defined:edge-pune/edge-api/edge-api requests: {'cpu': '20m', 'memory': '48Mi'}, limits: {'cpu': '150m', 'memory': '128Mi'}
+[PASS]   pod_runAsNonRoot:edge-mumbai/edge-api    Pod runAsNonRoot=true
+[PASS]   pod_seccomp:edge-mumbai/edge-api         Pod seccompProfile=RuntimeDefault
+[PASS]   container_hardening:edge-mumbai/edge-api/edge-api readOnlyRootFilesystem=true, allowPrivilegeEscalation=false, runAsNonRoot=true, drop=['ALL']
+[PASS]   resources_defined:edge-mumbai/edge-api/edge-api requests: {'cpu': '20m', 'memory': '48Mi'}, limits: {'cpu': '150m', 'memory': '128Mi'}
+[PASS]   pod_runAsNonRoot:edge-bangalore/edge-api Pod runAsNonRoot=true
+[PASS]   pod_seccomp:edge-bangalore/edge-api      Pod seccompProfile=RuntimeDefault
+[PASS]   container_hardening:edge-bangalore/edge-api/edge-api readOnlyRootFilesystem=true, allowPrivilegeEscalation=false, runAsNonRoot=true, drop=['ALL']
+[PASS]   resources_defined:edge-bangalore/edge-api/edge-api requests: {'cpu': '20m', 'memory': '48Mi'}, limits: {'cpu': '150m', 'memory': '128Mi'}
+[PASS]   pod_runAsNonRoot:kubesentinel-system/edge-worker Pod runAsNonRoot=true
+[PASS]   pod_seccomp:kubesentinel-system/edge-worker Pod seccompProfile=RuntimeDefault
+[PASS]   container_hardening:kubesentinel-system/edge-worker/edge-worker readOnlyRootFilesystem=true, allowPrivilegeEscalation=false, runAsNonRoot=true, drop=['ALL']
+[PASS]   resources_defined:kubesentinel-system/edge-worker/edge-worker requests: {'cpu': '20m', 'memory': '48Mi'}, limits: {'cpu': '150m', 'memory': '128Mi'}
+[PASS]   pod_runAsNonRoot:kubesentinel-system/redis Pod runAsNonRoot=true
+[PASS]   pod_seccomp:kubesentinel-system/redis    Pod seccompProfile=RuntimeDefault
+[PASS]   container_hardening:kubesentinel-system/redis/redis readOnlyRootFilesystem=true, allowPrivilegeEscalation=false, runAsNonRoot=true, drop=['ALL']
+[PASS]   resources_defined:kubesentinel-system/redis/redis requests: {'cpu': '20m', 'memory': '32Mi'}, limits: {'cpu': '100m', 'memory': '128Mi'}
+[PASS]   redis_acl_producer_ping                  Producer PING allowed
+[PASS]   redis_acl_producer_denied_xread          Producer denied XREADGROUP (NOPERM)
+[PASS]   redis_acl_producer_denied_config         Producer denied CONFIG (NOPERM)
+[PASS]   redis_acl_consumer_ping                  Consumer PING allowed
+[PASS]   redis_acl_consumer_denied_xadd           Consumer denied XADD (NOPERM)
+[PASS]   redis_acl_default_disabled               Default user disabled (NOAUTH/NOPERM)
+
+Summary: Total=47 PASS=47 FAIL=0

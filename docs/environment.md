@@ -1,106 +1,79 @@
 # Environment & Prerequisites — KubeSentinel
 
-## 1. Observed Environment Baseline (Milestone B)
+## 1. Validated Environment Baseline
 
-The local development environment has been validated and verified via `python scripts/kubesentinel.py doctor`:
+The development and execution environment is verified via `python scripts/kubesentinel.py doctor`:
 
 - **Operating System**: Microsoft Windows 11 Home Single Language (Build 26200), PowerShell 7.6.1.
-- **WSL2 Runtime**: Kernel 6.18.33.1-microsoft-standard-WSL2, Default Distribution Ubuntu-24.04, `networkingMode=Mirrored`, `hostAddressLoopback=true`.
-- **Docker Desktop**: Version 4.90.0 (Engine 29.7.2), Context `desktop-linux`, containerd snapshotter active, allocated 6 CPUs and 5.79 GiB memory.
+- **WSL2 Runtime**: Kernel 6.18.33.1-microsoft-standard-WSL2, Ubuntu-24.04, `networkingMode=Mirrored`, `hostAddressLoopback=true`.
+- **Docker Desktop**: Version 4.90.0 (Engine 29.7.2), Context `desktop-linux`, allocated 6 CPUs and 5.79 GiB memory.
 - **Python**: 3.14.2 in isolated repository virtual environment (`.venv`).
 - **Git**: 2.47.1.windows.2.
-- **kubectl**: v1.36.1 (client present).
-- **k3d**: v5.9.0 (installed via Scoop; cluster creation strictly deferred beyond Milestone B).
+- **kubectl**: v1.36.1.
+- **k3d**: v5.9.0.
+- **k3s Cluster**: Single-node k3d cluster `kubesentinel` running pinned `rancher/k3s:v1.35.5-k3s1`.
 
 ---
 
-## 2. Installed Software & Dependencies
+## 2. Kubernetes Cluster Specification
 
-### Python Virtual Environment (`.venv`)
-The project utilizes Python 3.14.2 with dependencies pinned in `pyproject.toml`:
-- `fastapi==0.141.1` — Async REST API framework.
-- `uvicorn==0.52.4` — High-performance ASGI web server.
-- `redis==8.1.0` — Official Python Redis client library supporting Redis Streams and ACLs.
-- `jsonschema==4.26.0` — JSON Schema Draft 2020-12 validation suite.
-- `pydantic==2.13.5` — Data validation and settings management.
-- `pytest==9.1.1` — Testing framework for unit and integration suites.
-- `httpx==0.28.1` — Async HTTP client for test probes and smoke tests.
-- `ruff==0.16.7` — High-speed Python linter and code formatter.
+To operate within host RAM constraints (~2.6 GiB free host memory tier), the k3d cluster is configured with minimal overhead:
 
-### Container Images
-- `redis:7.4.2-alpine` (official verified patch tag, digest: `sha256:02419de7eddf55aa5bcf49efb74e88fa8d931b4d77c07eff8a6b2144472b6952`).
-- `python:3.11-slim` (minimal hardened base for multi-stage application builds).
+- **Cluster Name**: `kubesentinel`
+- **Node Count**: 1 control-plane server node (`k3d-kubesentinel-server-0`), 0 agent nodes.
+- **Pinned k3s Image**: `rancher/k3s:v1.35.5-k3s1`.
+- **Disabled Default Controllers**:
+  - Traefik ingress controller (`--disable=traefik@server:0`)
+  - ServiceLB / Klipper LB (`--disable=servicelb@server:0`)
+  - Metrics Server (`--disable=metrics-server@server:0`)
+- **Container Runtime**: containerd (bundled inside k3s node container).
+- **Core DNS**: CoreDNS running with lightweight resource footprint.
 
 ---
 
-## 3. Network & Port Allocations
+## 3. Workload Sizing & Resource Allocations
 
-| Port | Service | Scope | Host Address | Access Policy |
-| :--- | :--- | :--- | :--- | :--- |
-| **8000** | `edge-api` | Public Ingestion | `127.0.0.1:8000` | Mapped via Compose ingress |
-| **6379** | `redis` | Internal Bridge | `redis:6379` | **Unmapped to host** (Least-privilege network isolation) |
-| **6443** | Kubernetes API | Deferred (Milestone C) | N/A | Reserved |
-| **9200** | Elasticsearch | Deferred (Milestone E) | N/A | Reserved |
-| **5601** | Kibana | Deferred (Milestone E) | N/A | Reserved |
+All deployments enforce conservative resource requests and limits:
 
----
-
-## 4. Docker Compose Environment Setup
-
-The local multi-container stack is orchestrated via `docker-compose.yml` on internal bridge network `kubesentinel-net`:
-
-### Service Inventory
-1. **`redis`**:
-   - Runs `redis:7.4.2-alpine` as unprivileged user `999:1000`.
-   - Mounts `redis.conf` and generated `users.acl` as read-only volumes.
-   - Root filesystem is `read_only: true` with isolated `16MB` tmpfs on `/tmp`.
-   - Healthcheck monitors connection using `producer` ACL identity.
-2. **`redis-bootstrap`**:
-   - Ephemeral one-shot container running as unprivileged user `999:1000`.
-   - Runs after `redis` is healthy; creates consumer group `edge-workers` via `MKSTREAM`.
-   - Exits with status 0 upon completion.
-3. **`edge-api`**:
-   - Runs `apps/edge-api/Dockerfile` as non-root user `10001:10001`.
-   - Depends on `redis` (healthy) and `redis-bootstrap` (completed successfully).
-   - Root filesystem `read_only: true` with isolated `64MB` tmpfs on `/tmp`.
-   - Exposes port 8000 to host.
-4. **`edge-worker`**:
-   - Runs `apps/edge-worker/Dockerfile` as non-root user `10001:10001`.
-   - Depends on `redis` (healthy) and `redis-bootstrap` (completed successfully).
-   - Root filesystem `read_only: true` with isolated `64MB` tmpfs on `/tmp`.
-   - Consumes stream entries and emits single-line JSON logs to stdout.
+| Workload | Namespace | Replicas | CPU Request | CPU Limit | Memory Request | Memory Limit |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| `redis` | `kubesentinel-system` | 1 | 20m | 100m | 32Mi | 128Mi |
+| `edge-worker` | `kubesentinel-system` | 1 | 20m | 150m | 48Mi | 128Mi |
+| `edge-api` | `edge-pune` | 1 | 20m | 150m | 48Mi | 128Mi |
+| `edge-api` | `edge-mumbai` | 1 | 20m | 150m | 48Mi | 128Mi |
+| `edge-api` | `edge-bangalore` | 1 | 20m | 150m | 48Mi | 128Mi |
 
 ---
 
-## 5. Canonical CLI Usage
+## 4. Container Images
 
-All local development, stack lifecycle, and verification tasks are executed via `scripts/kubesentinel.py`:
+- `rancher/k3s:v1.35.5-k3s1` — Pinned Kubernetes cluster image.
+- `redis:7.4.2-alpine` — Pinned patch version for Central Redis.
+- `kubesentinel-edge-api:0.2.0` — Multi-stage hardened build (non-root UID 10001).
+- `kubesentinel-edge-worker:0.2.0` — Multi-stage hardened build (non-root UID 10001).
+
+---
+
+## 5. Kubernetes CLI Orchestration
+
+All cluster and deployment tasks are automated via `scripts/kubesentinel.py`:
 
 ```powershell
-# 1. Inspect host environment readiness
+# 1. Inspect environment readiness
 .\.venv\Scripts\python.exe scripts/kubesentinel.py doctor
-# Optional JSON output:
-.\.venv\Scripts\python.exe scripts/kubesentinel.py doctor --json
 
-# 2. Bootstrap local secrets and Redis ACLs (generates .env.local and users.acl)
-.\.venv\Scripts\python.exe scripts/kubesentinel.py bootstrap-local
-# Force overwrite existing credentials:
-.\.venv\Scripts\python.exe scripts/kubesentinel.py bootstrap-local --force
+# 2. Cluster lifecycle
+.\.venv\Scripts\python.exe scripts/kubesentinel.py cluster-create
+.\.venv\Scripts\python.exe scripts/kubesentinel.py cluster-start
+.\.venv\Scripts\python.exe scripts/kubesentinel.py cluster-stop
+.\.venv\Scripts\python.exe scripts/kubesentinel.py cluster-delete
 
-# 3. Launch Docker Compose stack in detached mode (polls until ready)
-.\.venv\Scripts\python.exe scripts/kubesentinel.py compose-up
-# Rebuild images during launch:
-.\.venv\Scripts\python.exe scripts/kubesentinel.py compose-up --build
+# 3. Kubernetes deployment
+.\.venv\Scripts\python.exe scripts/kubesentinel.py k8s-deploy
 
-# 4. Execute deterministic end-to-end smoke verification
-.\.venv\Scripts\python.exe scripts/kubesentinel.py smoke
+# 4. Security & compliance validation
+.\.venv\Scripts\python.exe scripts/kubesentinel.py k8s-validate
 
-# 5. Stop and tear down Docker Compose stack (removes containers and volumes)
-.\.venv\Scripts\python.exe scripts/kubesentinel.py compose-down
-
-# 6. Run lint and code style checks
-.\.venv\Scripts\python.exe scripts/kubesentinel.py lint
-
-# 7. Run automated unit and integration tests (177 tests)
-.\.venv\Scripts\python.exe scripts/kubesentinel.py test
+# 5. Multi-site end-to-end smoke verification
+.\.venv\Scripts\python.exe scripts/kubesentinel.py k8s-smoke
 ```

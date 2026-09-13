@@ -1,0 +1,15 @@
+scenario: redis-unauthorized
+description: "Dual-control security verification demonstrating network-layer isolation (NetworkPolicy blocking unauthorized TCP traffic) and data-layer access control (Redis ACL rejecting unauthenticated and unauthorized requests on permitted paths)."
+hypothesis: "(A) An unauthorized pod outside permitted namespaces/labels will be denied TCP connectivity to Redis port 6379 by NetworkPolicy. (B) An authorized workload on the network path will be rejected by Redis ACL if using invalid credentials or attempting administrative commands."
+controls_tested:
+  - NetworkPolicy
+  - Redis ACL
+control_type: prevention
+mitre_attack:
+  id: T1078
+  name: "Valid Accounts: Redis ACL Least Privilege"
+  related: "T1110 (Brute Force / Unauthorized Access)"
+expected_result: "(A) Unauthorized TCP probe encounters network timeout/refusal from NetworkPolicy default-deny. (B) On authorized network path, unauthenticated requests or bad passwords fail with AuthenticationError (WRONGPASS), and unauthorized commands fail with NoPermissionError (NOPERM)."
+observed_result: "(A) Probe pod in observability namespace blocked from reaching redis:6379 (ConnectionRefusedError/TimeoutError). (B) edge-api authenticated requests with bad password returned WRONGPASS; producer attempted CONFIG and XREADGROUP commands were rejected with NOPERM."
+cleanup: "Temporary unauthorized probe pod deleted immediately upon execution; no state modifications to Redis keys or stream data."
+limitations: "Redis ACL rejections and NetworkPolicy packet drops are enforced prevention controls and are NOT currently forwarded to Elasticsearch (telemetry gap: preventative enforcement without audit log indexing)."

@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: psa-negative-pod
+  namespace: edge-pune
+  labels:
+    app: psa-negative-pod
+spec:
+  hostPID: true
+  containers:
+    - name: disallowed-container
+      image: busybox:1.36.1
+      command: ["sleep", "3600"]
+      securityContext:
+        privileged: true
+        allowPrivilegeEscalation: true
+        capabilities:
+          add:
+            - SYS_ADMIN

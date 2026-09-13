@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: edge-api-config
+  namespace: edge-bangalore
+data:
+  EDGE_SITE: "bangalore"
+  REDIS_HOST: "redis.kubesentinel-system.svc.cluster.local"
+  REDIS_PORT: "6379"
+  REDIS_STREAM: "security-events"
+  NAMESPACE: "local-compose"
+  SERVICE: "edge-api"

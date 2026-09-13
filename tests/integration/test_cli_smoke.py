@@ -14,6 +14,8 @@ import pytest
 from scripts import compose, kubesentinel, smoke
 from scripts.compose import is_docker_available
 
+pytestmark = pytest.mark.integration
+
 ROOT = Path(__file__).resolve().parents[2]
 
 

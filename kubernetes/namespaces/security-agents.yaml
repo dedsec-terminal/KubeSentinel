@@ -1,0 +1,16 @@
+# Dedicated isolated namespace for runtime security agents (Falco)
+# Requires privileged Pod Security Admission profile for modern_ebpf/eBPF kernel probe and host syscall instrumentation
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: security-agents
+  labels:
+    name: security-agents
+    pod-security.kubernetes.io/enforce: privileged
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/audit: privileged
+    pod-security.kubernetes.io/audit-version: latest
+    pod-security.kubernetes.io/warn: privileged
+    pod-security.kubernetes.io/warn-version: latest
+  annotations:
+    description: "Dedicated namespace for runtime security monitoring agents (Falco) requiring privileged kernel access."

@@ -1,0 +1,17 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: fluent-bit-read
+  labels:
+    app.kubernetes.io/name: fluent-bit
+    app.kubernetes.io/part-of: kubesentinel
+    app.kubernetes.io/component: telemetry-collector
+rules:
+  - apiGroups: [""]
+    resources:
+      - pods
+      - namespaces
+    verbs:
+      - get
+      - list
+      - watch

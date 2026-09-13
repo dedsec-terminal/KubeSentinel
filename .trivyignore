@@ -1,0 +1,73 @@
+# .trivyignore - KubeSentinel Security Scan Exceptions
+# ==============================================================================
+# This file documents narrowly scoped exceptions for third-party security agents
+# and telemetry collectors operating in the KubeSentinel Kubernetes cluster.
+#
+# Exception Policy:
+# 1. Project application code and workloads (edge-api, edge-worker, redis) must
+#    have ZERO exceptions and ZERO fixable HIGH/CRITICAL findings.
+# 2. Third-party infrastructure daemons (Falco modern_ebpf, Fluent Bit) require
+#    specific elevated host and kernel access to fulfill their monitoring roles.
+# 3. No findings are silenced without documented justification and scope.
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. Falco Modern eBPF Runtime Security Sensor
+# Namespace: security-agents | Pod/DaemonSet: falco
+# Justification: Falco requires host kernel visibility to capture system calls,
+# trace execve/connect events, and correlate process activity with Kubernetes pods.
+# ------------------------------------------------------------------------------
+
+# Container running with 'privileged' flag (AVD-KSV-0012 / KSV012)
+# Required for modern_ebpf driver to attach eBPF probes to kernel tracepoints in k3d.
+AVD-KSV-0012
+KSV012
+
+# hostPath volumes mounted (AVD-KSV-0023 / KSV023)
+# Required to access /proc, /etc, and containerd socket (/run/containerd/containerd.sock)
+# to enrich raw kernel events with container and process metadata.
+AVD-KSV-0023
+KSV023
+
+# Allow privilege escalation enabled (AVD-KSV-0001 / KSV0001)
+# Required because privileged container must retain root privileges to manage eBPF maps.
+AVD-KSV-0001
+KSV0001
+
+# Root filesystem is not read-only (AVD-KSV-0014 / KSV014)
+# Falco daemon writes dynamic state, rule caches, and probe diagnostics at runtime.
+AVD-KSV-0014
+KSV014
+
+# Container running as root (AVD-KSV-0020 / KSV020)
+# Kernel eBPF probe attachment requires UID 0 on the host node.
+AVD-KSV-0020
+KSV020
+
+# Linux capabilities not dropped (AVD-KSV-0043 / KSV043)
+# Requires CAP_SYS_ADMIN / CAP_BPF / CAP_SYS_RESOURCE for modern_ebpf subsystem.
+AVD-KSV-0043
+KSV043
+
+# Host PID namespace enabled (AVD-KSV-0010 / KSV010)
+# Required to correlate container PIDs with host kernel thread IDs.
+AVD-KSV-0010
+KSV010
+
+# Host network namespace enabled (AVD-KSV-0009 / KSV0009)
+# Required for network connection tracing across container interfaces.
+AVD-KSV-0009
+KSV0009
+
+# ------------------------------------------------------------------------------
+# 2. Fluent Bit Telemetry Log Collector
+# Namespace: observability | Pod/DaemonSet: fluent-bit
+# Justification: In standard Kubernetes, container stdout/stderr logs are stored
+# on the host node at /var/log/pods/. Fluent Bit mounts /var/log read-only to ingest
+# application and security event logs into Elasticsearch.
+# ------------------------------------------------------------------------------
+
+# Storage of container logs requires host /var/log volume mount (AVD-KSV-0018 / KSV018)
+# Fluent Bit mounts /var/log as read-only.
+AVD-KSV-0018
+KSV018

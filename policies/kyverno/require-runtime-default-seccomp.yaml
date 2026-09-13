@@ -1,0 +1,36 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-runtime-default-seccomp
+  annotations:
+    policies.kyverno.io/title: Require RuntimeDefault Seccomp Profile
+    policies.kyverno.io/category: Pod Security
+    policies.kyverno.io/severity: medium
+    policies.kyverno.io/description: Pods or containers must set seccomp profile to RuntimeDefault.
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: check-seccomp
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+              namespaces:
+                - edge-pune
+                - edge-mumbai
+                - edge-bangalore
+                - kubesentinel-system
+      validate:
+        message: "Seccomp profile type must be set to RuntimeDefault."
+        anyPattern:
+          - spec:
+              securityContext:
+                seccompProfile:
+                  type: RuntimeDefault
+          - spec:
+              containers:
+                - securityContext:
+                    seccompProfile:
+                      type: RuntimeDefault

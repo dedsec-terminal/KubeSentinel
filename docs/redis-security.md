@@ -1,15 +1,15 @@
-# Redis Security & Stream Architecture — Milestone B
+# Redis Security & Stream Architecture
 
 ## 1. Executive Summary
 
-Milestone B establishes the first real application telemetry transport for KubeSentinel: an authenticated, least-privilege Redis Streams pipeline connecting `edge-api` (producer) to `edge-worker` (consumer) under Docker Compose.
+KubeSentinel uses an authenticated, least-privilege Redis Streams pipeline to decouple `edge-api` producers from the central `edge-worker` consumer. The same command and identity boundaries are exercised under Docker Compose before the services are deployed into the local Kubernetes cluster.
 
 ```mermaid
 flowchart LR
-    Client([HTTP Client]) -->|POST /events| API[edge-api\nUID 10001:10001]
-    API -->|XADD security-events\nuser: producer| R[(Redis 7.4.2\nInternal Bridge\nPort 6379 Unmapped)]
-    R -->|XREADGROUP edge-workers\nuser: consumer| W[edge-worker\nUID 10001:10001]
-    W -->|stdout| Log[Structured JSON Log]
+    Client["HTTP client"] -->|POST /events| API["edge-api<br/>UID 10001:10001"]
+    API -->|XADD security-events<br/>producer ACL| R[("Redis 7.4.2<br/>internal bridge<br/>port 6379 not published")]
+    R -->|XREADGROUP edge-workers<br/>consumer ACL| W["edge-worker<br/>UID 10001:10001"]
+    W -->|stdout| Log["Structured JSON log"]
     W -->|XACK security-events\nuser: consumer| R
 ```
 
@@ -56,17 +56,17 @@ Redis 7.4.2 runs with strict ACL enforcement configured via `deploy/compose/redi
 
 ### ACL Configuration File Template (`users.acl`)
 ```acl
-user default off nopass -@all
-user producer on >${REDIS_PRODUCER_PASSWORD} ~security-events +auth +ping +xadd
-user consumer on >${REDIS_CONSUMER_PASSWORD} ~security-events +auth +ping +xreadgroup +xack
-user bootstrap on >${REDIS_BOOTSTRAP_PASSWORD} ~security-events +auth +ping +xgroup +xinfo +xpending
+user default off
+user producer on >${REDIS_PRODUCER_PASSWORD} resetkeys ~security-events resetchannels -@all +auth +ping +xadd
+user consumer on >${REDIS_CONSUMER_PASSWORD} resetkeys ~security-events resetchannels -@all +auth +ping +xreadgroup +xack
+user bootstrap on >${REDIS_BOOTSTRAP_PASSWORD} resetkeys ~security-events resetchannels -@all +auth +ping +xgroup +xinfo +xpending
 ```
 
 ---
 
 ## 4. Insecure vs. Hardened Configuration Comparison
 
-| Dimension | Insecure Default (Anti-Pattern) | KubeSentinel Hardened Implementation (Milestone B) |
+| Dimension | Insecure Default (Anti-Pattern) | KubeSentinel Hardened Implementation |
 | :--- | :--- | :--- |
 | **Authentication** | None (open default port) | Strict ACL authentication with distinct 256-bit cryptographically random tokens per role. |
 | **Network Exposure**| Published to `0.0.0.0:6379` | Unmapped internal bridge network only (`kubesentinel-net`); zero host port exposure. |
@@ -130,4 +130,4 @@ sequenceDiagram
 
 - **Redis TLS (Transport Layer Security)**: Deferred. Transport encryption is not configured for local Docker Compose; isolation is provided by Docker bridge network boundaries.
 - **Dead-Letter Queue (DLQ) Stream**: Deferred. Malformed entries remain pending in the PEL rather than being diverted to a dedicated dead-letter stream.
-- **Cluster Mode & Replication**: Single-node instance utilized for Milestone B; Redis Sentinel / Redis Cluster topologies are deferred to Kubernetes milestones.
+- **Cluster Mode & Replication**: The lab uses one Redis instance; Redis Sentinel and Redis Cluster topologies are outside the current local scope.

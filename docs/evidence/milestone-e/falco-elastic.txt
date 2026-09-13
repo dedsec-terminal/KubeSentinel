@@ -1,0 +1,74 @@
+=== PROOF 2: RUNTIME SECURITY TELEMETRY PIPELINE (FALCO -> FLUENT BIT -> ELASTICSEARCH) ===
+Timestamp: 2026-09-13T15:07:49Z
+Trigger Marker: falco-e2e-evidence-438c6c16
+Target Pod: edge-api in edge-pune
+Trigger Result ReturnCode: 0
+
+--- Elasticsearch Index Verification ---
+Document Found: True
+Index: kubesentinel-falco-2026.09.13
+Document ID: qdRPm6ABBprAIohfXDh4
+
+--- Full Indexed Alert Document Source (_source) ---
+{
+  "@timestamp": "2026-09-13T15:07:44.074Z",
+  "stream": "stdout",
+  "_p": "F",
+  "hostname": "k3d-kubesentinel-server-0",
+  "output": "15:07:44.430151653: Warning Unexpected shell spawned in KubeSentinel edge container (user=<NA> user_uid=10001 user_loginuid=-1 process=sh parent=<NA> cmdline=sh -c echo falco-e2e-evidence-438c6c16 container_id=2e822ee84040 container_name=edge-api k8s_pod=edge-api-7db6db7d68-ft6jq k8s_ns=edge-pune) container_id=2e822ee84040 container_name=edge-api container_image_repository=docker.io/library/kubesentinel-edge-api container_image_tag=0.2.0 k8s_pod_name=edge-api-7db6db7d68-ft6jq k8s_ns_name=edge-pune",
+  "output_fields": {
+    "container_id": "2e822ee84040",
+    "container_image_repository": "docker.io/library/kubesentinel-edge-api",
+    "container_image_tag": "0.2.0",
+    "container_name": "edge-api",
+    "evt_time": 1789312064430151653,
+    "k8s_ns_name": "edge-pune",
+    "k8s_pod_name": "edge-api-7db6db7d68-ft6jq",
+    "proc_cmdline": "sh -c echo falco-e2e-evidence-438c6c16",
+    "proc_name": "sh",
+    "proc_pname": null,
+    "user_loginuid": -1,
+    "user_name": "<NA>",
+    "user_uid": 10001
+  },
+  "priority": "Warning",
+  "rule": "Unexpected shell in KubeSentinel edge workload",
+  "source": "syscall",
+  "tags": [
+    "T1059",
+    "container",
+    "kubesentinel",
+    "mitre_execution"
+  ],
+  "time": "2026-09-13T15:07:44.430151653Z",
+  "kubernetes": {
+    "pod_name": "falco-945s5",
+    "namespace_name": "security-agents",
+    "pod_id": "141f11bf-bef3-4ee6-8f2b-db9d44ca3833",
+    "labels": {
+      "app_kubernetes_io/instance": "falco",
+      "app_kubernetes_io/name": "falco",
+      "controller-revision-hash": "cfbb59596",
+      "pod-template-generation": "3"
+    },
+    "annotations": {
+      "checksum/certs": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "checksum/config": "e62b7f50a1cf5acdd2c3d82c4f7716259ccef7c8cb4030624bc8cb9f33cbc35b",
+      "checksum/rules": "b68b2570ceda9b0a4bb399c85bf08715d799bd1684dd43fd75cca31358a3cffe"
+    },
+    "host": "k3d-kubesentinel-server-0",
+    "pod_ip": "10.42.0.49",
+    "container_name": "falco",
+    "docker_id": "09de23245c6dc3f9a7d317fdbc2707b38d3fa913ab1e388a76d191a48bda77db",
+    "container_hash": "sha256:30143ab2a63c76eb6f4b4b2474f9bf9c1e1c31a4a2b2f378429388f42b198a96",
+    "container_image": "docker.io/falcosecurity/falco:0.44.1"
+  }
+}
+
+--- Field Assertion Ledger ---
+  [PASS] rule: Unexpected shell in KubeSentinel edge workload
+  [PASS] priority: Warning
+  [PASS] source: syscall
+  [PASS] time: 2026-09-13T15:07:44.430151653Z
+  [PASS] output_fields.k8s_ns_name: edge-pune
+  [PASS] output_fields.proc_cmdline: sh -c echo falco-e2e-evidence-438c6c16

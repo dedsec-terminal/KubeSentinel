@@ -1,0 +1,120 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "KubeSentinelDetectionRule",
+  "description": "Schema definition for KubeSentinel Elasticsearch detection rules and threat hunting definitions.",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "description",
+    "severity",
+    "status",
+    "index",
+    "language",
+    "query",
+    "required_fields",
+    "hypothesis",
+    "investigation_guide",
+    "false_positives",
+    "limitations"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Unique rule identifier in kebab-case."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 5,
+      "description": "Human-readable title of the detection rule."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 10,
+      "description": "Detailed explanation of what the detection rule identifies."
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["critical", "high", "medium", "low"],
+      "description": "Assigned severity level of the detection."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["production", "experimental", "hunting"],
+      "description": "Operational maturity lifecycle status."
+    },
+    "index": {
+      "type": "string",
+      "minLength": 3,
+      "description": "Target Elasticsearch index pattern."
+    },
+    "language": {
+      "type": "string",
+      "enum": ["esql", "eql", "kql", "lucene"],
+      "description": "Query language dialect."
+    },
+    "query": {
+      "type": "string",
+      "minLength": 5,
+      "description": "The exact query string to execute against Elasticsearch."
+    },
+    "required_fields": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "description": "List of Elasticsearch fields required by this rule."
+    },
+    "mitre_attack": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["tactic", "technique_id", "technique_name"],
+        "additionalProperties": false,
+        "properties": {
+          "tactic": {
+            "type": "string",
+            "description": "MITRE ATT&CK tactic (e.g. execution, initial-access)."
+          },
+          "technique_id": {
+            "type": "string",
+            "pattern": "^T[0-9]+(\\.[0-9]+)?$",
+            "description": "MITRE ATT&CK technique or sub-technique ID (e.g. T1059.004)."
+          },
+          "technique_name": {
+            "type": "string",
+            "description": "Official name of the MITRE ATT&CK technique."
+          }
+        }
+      },
+      "minItems": 1,
+      "description": "Optional conservative mappings to the MITRE ATT&CK framework. Omit this field when the telemetry does not support a specific technique."
+    },
+    "hypothesis": {
+      "type": "string",
+      "minLength": 10,
+      "description": "Security hypothesis stating attacker motivation, tradecraft, and expected telemetry."
+    },
+    "investigation_guide": {
+      "type": "string",
+      "minLength": 20,
+      "description": "Step-by-step triage guide for security analysts when this rule triggers."
+    },
+    "false_positives": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "description": "Known benign triggers, authorized activities, and tuning considerations."
+    },
+    "limitations": {
+      "type": "string",
+      "minLength": 10,
+      "description": "Explicit discussion of detection blind spots, bypasses, or telemetry dependencies."
+    }
+  }
+}

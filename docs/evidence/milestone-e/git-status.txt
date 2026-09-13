@@ -1,0 +1,52 @@
+On branch main
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   ORIGINAL_REQUEST.md
+	modified:   README.md
+	modified:   apps/edge-api/src/edge_api/config.py
+	modified:   apps/edge-api/src/edge_api/main.py
+	modified:   docs/architecture.md
+	modified:   docs/environment.md
+	modified:   docs/security-model.md
+	modified:   scripts/kubesentinel.py
+	modified:   tests/validate/test_cli.py
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	docs/evidence/milestone-c/
+	docs/evidence/milestone-d/
+	docs/evidence/milestone-e/
+	docs/falco-runtime-security.md
+	docs/kyverno-policies.md
+	docs/network-security.md
+	docs/observability.md
+	helm/
+	kubernetes/
+	policies/
+	scratch/
+	scripts/cluster.py
+	scripts/deploy_observability.py
+	scripts/falco_validate.py
+	scripts/generate_milestone_d_evidence.py
+	scripts/generate_milestone_e_evidence.py
+	scripts/k8s_client.py
+	scripts/k8s_deploy.py
+	scripts/k8s_smoke.py
+	scripts/k8s_validate.py
+	scripts/kyverno_validate.py
+	scripts/network_validate.py
+	scripts/observability_deploy.py
+	scripts/observability_validate.py
+	scripts/setup_es_templates.py
+	scripts/telemetry_smoke.py
+	scripts/validate_fluentbit.py
+	tests/edge_api/test_downward_api.py
+	tests/kyverno/
+	tests/unit/test_cli_observability.py
+	tests/unit/test_es_templates.py
+	tests/unit/test_falco_rules.py
+	tests/unit/test_fluentbit_config.py
+	tests/unit/test_k8s_manifests.py
+
+no changes added to commit (use "git add" and/or "git commit -a")

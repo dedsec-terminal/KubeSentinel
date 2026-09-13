@@ -1,0 +1,7 @@
+=======================================================
+ KubeSentinel Milestone F: Controlled Simulations
+=======================================================
+
+[PASS]   lateral-access         (prevention)   Cross-namespace lateral access from edge-pune to edge-api.edge-mumbai.svc.cluster.local:8000 was blocked by NetworkPolicy (5.278s)
+
+Summary: Total=1 PASS=1 FAIL=0

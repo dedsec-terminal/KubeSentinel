@@ -1,0 +1,27 @@
+Running Kubernetes Network Security Validation...
+[PASS]   default_deny_policy:kubesentinel-system  default-deny-all active in kubesentinel-system
+[PASS]   default_deny_policy:edge-pune            default-deny-all active in edge-pune
+[PASS]   default_deny_policy:edge-mumbai          default-deny-all active in edge-mumbai
+[PASS]   default_deny_policy:edge-bangalore       default-deny-all active in edge-bangalore
+[PASS]   allow_dns_policy:kubesentinel-system     allow-dns-egress active in kubesentinel-system
+[PASS]   allow_dns_policy:edge-pune               allow-dns-egress active in edge-pune
+[PASS]   allow_dns_policy:edge-mumbai             allow-dns-egress active in edge-mumbai
+[PASS]   allow_dns_policy:edge-bangalore          allow-dns-egress active in edge-bangalore
+[PASS]   redis_access_policy:kubesentinel-system  redis-access active in kubesentinel-system
+[PASS]   edge_api_policy:edge-pune                edge-api-policy active in edge-pune
+[PASS]   edge_api_policy:edge-mumbai              edge-api-policy active in edge-mumbai
+[PASS]   edge_api_policy:edge-bangalore           edge-api-policy active in edge-bangalore
+[PASS]   edge_worker_policy:kubesentinel-system   edge-worker-policy active in kubesentinel-system
+[PASS]   dns_resolution:edge-pune                 Successfully resolved kubernetes.default to 10.43.0.1
+[PASS]   dns_resolution:edge-mumbai               Successfully resolved kubernetes.default to 10.43.0.1
+[PASS]   dns_resolution:edge-bangalore            Successfully resolved kubernetes.default to 10.43.0.1
+[PASS]   dns_resolution:kubesentinel-system       Successfully resolved kubernetes.default to 10.43.0.1
+[PASS]   authorized_flow:edge-pune:edge-api       Pune edge-api -> Redis connection established (TCP 6379)
+[PASS]   authorized_flow:edge-mumbai:edge-api     Mumbai edge-api -> Redis connection established (TCP 6379)
+[PASS]   authorized_flow:edge-bangalore:edge-api  Bangalore edge-api -> Redis connection established (TCP 6379)
+[PASS]   authorized_flow:kubesentinel-system:edge-worker edge-worker -> Redis connection established (TCP 6379)
+[PASS]   cross_edge_isolation:pune_to_mumbai      Cross-edge traffic blocked under active NetworkPolicy (ConnectionRefusedError)
+[PASS]   unauthorized_redis_blocked               Unauthorized client TCP connectivity blocked under active NetworkPolicy (ConnectionRefusedError)
+[PASS]   redis_service_cluster_ip                 Service type is ClusterIP (clusterIP=10.43.197.193)
+
+Summary: Total=24 PASS=24 FAIL=0

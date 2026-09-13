@@ -1,0 +1,226 @@
+=== OBSERVABILITY WORKLOAD STATUS ===
+NAME                                 READY   STATUS    RESTARTS   AGE    IP           NODE                        NOMINATED NODE   READINESS GATES
+pod/elasticsearch-6b747cb48d-mh4df   1/1     Running   0          131m   10.42.0.39   k3d-kubesentinel-server-0   <none>           <none>
+pod/fluent-bit-f65qs                 1/1     Running   0          12m    10.42.0.53   k3d-kubesentinel-server-0   <none>           <none>
+pod/kibana-77fbb64595-lf65p          1/1     Running   0          120m   10.42.0.42   k3d-kubesentinel-server-0   <none>           <none>
+
+NAME                    TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE    SELECTOR
+service/elasticsearch   ClusterIP   10.43.82.168   <none>        9200/TCP   134m   app.kubernetes.io/name=elasticsearch
+service/kibana          ClusterIP   10.43.28.255   <none>        5601/TCP   129m   app.kubernetes.io/name=kibana
+
+NAME                               TYPE     DATA   AGE
+secret/elasticsearch-credentials   Opaque   3      134m
+
+
+=== ELASTICSEARCH CLUSTER HEALTH (GET /_cluster/health) ===
+HTTP 200
+{
+  "cluster_name": "docker-cluster",
+  "status": "green",
+  "timed_out": false,
+  "number_of_nodes": 1,
+  "number_of_data_nodes": 1,
+  "active_primary_shards": 32,
+  "active_shards": 32,
+  "relocating_shards": 0,
+  "initializing_shards": 0,
+  "unassigned_shards": 0,
+  "unassigned_primary_shards": 0,
+  "delayed_unassigned_shards": 0,
+  "number_of_pending_tasks": 0,
+  "number_of_in_flight_fetch": 0,
+  "task_max_waiting_in_queue_millis": 0,
+  "active_shards_percent_as_number": 100.0
+}
+
+
+=== ELASTICSEARCH NODES (GET /_cat/nodes?v) ===
+ip         heap.percent ram.percent cpu load_1m load_5m load_15m node.role   master name
+10.42.0.39           50          94  17    1.24    1.40     1.53 cdfhilmrstw *      elasticsearch-6b747cb48d-mh4df
+
+
+=== ELASTICSEARCH INDICES (GET /_cat/indices/kubesentinel-*?v) ===
+health status index                         uuid                   pri rep docs.count docs.deleted store.size pri.store.size dataset.size
+green  open   kubesentinel-falco-2026.09.13 7N9Nl1kETVuLL1041NAv-Q   1   0         40            0        1mb            1mb          1mb
+green  open   kubesentinel-app-2026.09.13   hVOa4Wu6QemCHimXgNCLeA   1   0       5028            0        2mb            2mb          2mb
+
+
+=== COMPOSABLE INDEX TEMPLATE: kubesentinel-app ===
+{
+  "index_templates": [
+    {
+      "name": "kubesentinel-app",
+      "index_template": {
+        "index_patterns": [
+          "kubesentinel-app-*"
+        ],
+        "template": {
+          "settings": {
+            "index": {
+              "number_of_shards": "1",
+              "number_of_replicas": "0",
+              "refresh_interval": "1s"
+            }
+          },
+          "mappings": {
+            "properties": {
+              "severity": {
+                "type": "keyword"
+              },
+              "metadata": {
+                "dynamic": true,
+                "type": "object"
+              },
+              "edge_site": {
+                "type": "keyword"
+              },
+              "destination": {
+                "type": "keyword"
+              },
+              "source": {
+                "type": "keyword"
+              },
+              "message": {
+                "type": "text"
+              },
+              "log_type": {
+                "type": "keyword"
+              },
+              "@timestamp": {
+                "type": "date"
+              },
+              "event_id": {
+                "type": "keyword"
+              },
+              "event_type": {
+                "type": "keyword"
+              },
+              "service": {
+                "type": "keyword"
+              },
+              "namespace": {
+                "type": "keyword"
+              },
+              "redis_stream_id": {
+                "type": "keyword"
+              },
+              "processing_status": {
+                "type": "keyword"
+              },
+              "processed_at": {
+                "type": "date"
+              },
+              "worker": {
+                "type": "keyword"
+              },
+              "timestamp": {
+                "type": "date"
+              }
+            }
+          }
+        },
+        "composed_of": [],
+        "priority": 200
+      }
+    }
+  ]
+}
+
+
+=== COMPOSABLE INDEX TEMPLATE: kubesentinel-falco ===
+{
+  "index_templates": [
+    {
+      "name": "kubesentinel-falco",
+      "index_template": {
+        "index_patterns": [
+          "kubesentinel-falco-*"
+        ],
+        "template": {
+          "settings": {
+            "index": {
+              "number_of_shards": "1",
+              "number_of_replicas": "0",
+              "refresh_interval": "1s"
+            }
+          },
+          "mappings": {
+            "properties": {
+              "severity": {
+                "type": "keyword"
+              },
+              "output": {
+                "type": "text"
+              },
+              "output_fields": {
+                "dynamic": true,
+                "type": "object"
+              },
+              "@timestamp": {
+                "type": "date"
+              },
+              "rule": {
+                "type": "keyword"
+              },
+              "time": {
+                "type": "date"
+              },
+              "source": {
+                "type": "keyword"
+              },
+              "priority": {
+                "type": "keyword"
+              },
+              "timestamp": {
+                "type": "date"
+              }
+            }
+          }
+        },
+        "composed_of": [],
+        "priority": 200
+      }
+    }
+  ]
+}
+
+
+=== KIBANA STATUS (GET /api/status) ===
+HTTP 200
+{
+  "status": {
+    "level": "available",
+    "summary": "All services and plugins are available"
+  },
+  "version": "8.17.3"
+}
+
+
+=== KIBANA DATA VIEWS (GET /api/data_views) ===
+HTTP 200
+{
+  "data_view": [
+    {
+      "id": "kubesentinel-app",
+      "namespaces": [
+        "default"
+      ],
+      "title": "kubesentinel-app-*",
+      "name": "KubeSentinel Applications"
+    },
+    {
+      "id": "kubesentinel-falco",
+      "namespaces": [
+        "default"
+      ],
+      "title": "kubesentinel-falco-*",
+      "name": "KubeSentinel Falco Alerts"
+    }
+  ]
+}
+
+
+=== ELASTICSEARCH & KIBANA SIZING / RESOURCE CONSTRAINTS ===
+Elasticsearch Resources: {"limits":{"cpu":"1","memory":"1200Mi"},"requests":{"cpu":"250m","memory":"600Mi"}}
+Elasticsearch JVM Heap: [{"name":"discovery.type","value":"single-node"},{"name":"xpack.security.enabled","value":"true"},{"name":"xpack.security.enrollment.enabled","value":"false"},{"name":"xpack.security.http.ssl.enabled","value":"false"},{"name":"ES_JAVA_OPTS","value":"-Xms512m -Xmx512m"},{"name":"ELASTIC_PASSWORD","valueFrom":{"secretKeyRef":{"key":"password","name":"elasticsearch-credentials"}}}]
+Kibana Resources: {"limits":{"cpu":"500m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"256Mi"}}

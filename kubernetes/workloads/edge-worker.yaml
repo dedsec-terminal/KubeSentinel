@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edge-worker
+  namespace: kubesentinel-system
+  labels:
+    app: edge-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: edge-worker
+  template:
+    metadata:
+      labels:
+        app: edge-worker
+    spec:
+      serviceAccountName: edge-worker-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: edge-worker
+          image: kubesentinel-edge-worker:0.2.0
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10001
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+            seccompProfile:
+              type: RuntimeDefault
+          envFrom:
+            - configMapRef:
+                name: edge-worker-config
+          env:
+            - name: REDIS_CONSUMER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-auth-secret
+                  key: REDIS_CONSUMER_PASSWORD
+          resources:
+            requests:
+              cpu: 20m
+              memory: 48Mi
+            limits:
+              cpu: 150m
+              memory: 128Mi
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}

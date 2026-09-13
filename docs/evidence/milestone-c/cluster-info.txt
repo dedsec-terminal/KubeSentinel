@@ -1,0 +1,16 @@
+NAME           SERVERS   AGENTS   LOADBALANCER
+kubesentinel   1/1       0/0      true
+NAME                        STATUS   ROLES           AGE   VERSION        INTERNAL-IP   EXTERNAL-IP   OS-IMAGE           KERNEL-VERSION                      CONTAINER-RUNTIME
+k3d-kubesentinel-server-0   Ready    control-plane   27m   v1.35.5+k3s1   172.19.0.3    <none>        K3s v1.35.5+k3s1   6.18.33.1-microsoft-standard-WSL2   containerd://2.2.3-k3s1
+Client Version: v1.35.5+k3s1
+Kustomize Version: v5.7.1
+Server Version: v1.35.5+k3s1
+NAMESPACE             NAME                                      READY   STATUS      RESTARTS   AGE     IP           NODE                        NOMINATED NODE   READINESS GATES
+edge-bangalore        edge-api-5d87c75bf-4fsnp                  1/1     Running     0          19m     10.42.0.6    k3d-kubesentinel-server-0   <none>           <none>
+edge-mumbai           edge-api-99d4556d5-qk5cq                  1/1     Running     0          19m     10.42.0.7    k3d-kubesentinel-server-0   <none>           <none>
+edge-pune             edge-api-764b897d54-qt588                 1/1     Running     0          19m     10.42.0.8    k3d-kubesentinel-server-0   <none>           <none>
+kube-system           coredns-8db54c48d-jbswh                   1/1     Running     0          27m     10.42.0.2    k3d-kubesentinel-server-0   <none>           <none>
+kube-system           local-path-provisioner-5d9d9885bc-9mq8w   1/1     Running     0          27m     10.42.0.3    k3d-kubesentinel-server-0   <none>           <none>
+kubesentinel-system   edge-worker-69444bd6bd-9wddg              1/1     Running     0          9m44s   10.42.0.14   k3d-kubesentinel-server-0   <none>           <none>
+kubesentinel-system   redis-767dd7dbb9-l7mx2                    1/1     Running     0          14m     10.42.0.12   k3d-kubesentinel-server-0   <none>           <none>
+kubesentinel-system   redis-bootstrap-5r4q9                     0/1     Completed   0          2m39s   10.42.0.16   k3d-kubesentinel-server-0   <none>           <none>

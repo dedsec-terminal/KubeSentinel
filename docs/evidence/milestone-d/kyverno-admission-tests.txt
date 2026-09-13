@@ -1,0 +1,48 @@
+=== KYVERNO ADMISSION TEST RESULTS ===
+
+--- POSITIVE TEST: valid-pod.yaml ---
+Return code: 0
+STDOUT: pod/valid-fixture-pod created (server dry run)
+STDERR:
+
+--- NEGATIVE TEST: capabilities-fail.yaml ---
+Return code: 1
+STDERR: Error from server (Forbidden): error when creating "STDIN": pods "fail-capabilities-pod" is forbidden: violates PodSecurity "restricted:latest": unrestricted capabilities (container "workload" must set securityContext.capabilities.drop=["ALL"]; container "workload" must not include "NET_ADMIN" in securityContext.capabilities.add)
+
+--- NEGATIVE TEST: disallow-latest-tag-fail.yaml ---
+Return code: 1
+STDERR: Error from server: error when creating "STDIN": admission webhook "validate.kyverno.svc-fail" denied the request:
+
+resource Pod/edge-pune/fail-latest-tag-pod was blocked due to the following policies
+
+disallow-latest-tag:
+  validate-image-tag: 'validation error: Using '':latest'' tag is disallowed for project workloads. rule validate-image-tag failed at path /spec/containers/0/image/'
+
+--- NEGATIVE TEST: host-network-fail.yaml ---
+Return code: 1
+STDERR: Error from server (Forbidden): error when creating "STDIN": pods "fail-host-network-pod" is forbidden: violates PodSecurity "restricted:latest": host namespaces (hostNetwork=true)
+
+--- NEGATIVE TEST: host-path-fail.yaml ---
+Return code: 1
+STDERR: Error from server (Forbidden): error when creating "STDIN": pods "fail-host-path-pod" is forbidden: violates PodSecurity "restricted:latest": restricted volume types (volume "host-volume" uses restricted volume type "hostPath")
+
+--- NEGATIVE TEST: missing-resources-fail.yaml ---
+Return code: 1
+STDERR: Error from server: error when creating "STDIN": admission webhook "validate.kyverno.svc-fail" denied the request:
+
+resource Pod/edge-pune/fail-missing-resources-pod was blocked due to the following policies
+
+require-resource-requests-limits:
+  check-resources: 'validation error: CPU and memory resource requests and limits are required for all containers. rule check-resources failed at path /spec/containers/0/resources/limits/'
+
+--- NEGATIVE TEST: non-root-fail.yaml ---
+Return code: 1
+STDERR: Error from server (Forbidden): error when creating "STDIN": pods "fail-non-root-pod" is forbidden: violates PodSecurity "restricted:latest": runAsNonRoot != true (container "workload" must not set securityContext.runAsNonRoot=false), runAsUser=0 (container "workload" must not set runAsUser=0)
+
+--- NEGATIVE TEST: privilege-escalation-fail.yaml ---
+Return code: 1
+STDERR: Error from server (Forbidden): error when creating "STDIN": pods "fail-privilege-escalation-pod" is forbidden: violates PodSecurity "restricted:latest": allowPrivilegeEscalation != false (container "workload" must set securityContext.allowPrivilegeEscalation=false)
+
+--- NEGATIVE TEST: privileged-container-fail.yaml ---
+Return code: 1
+STDERR: Error from server (Forbidden): error when creating "STDIN": pods "fail-privileged-pod" is forbidden: violates PodSecurity "restricted:latest": privileged (container "workload" must not set securityContext.privileged=true), allowPrivilegeEscalation != false (container "workload" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "workload" must set securityContext.capabilities.drop=["ALL"]), runAsNonRoot != true (pod or container "workload" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "workload" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")

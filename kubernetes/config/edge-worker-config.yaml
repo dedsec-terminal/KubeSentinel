@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: edge-worker-config
+  namespace: kubesentinel-system
+data:
+  REDIS_HOST: "redis.kubesentinel-system.svc.cluster.local"
+  REDIS_PORT: "6379"
+  REDIS_STREAM: "security-events"
+  REDIS_GROUP: "edge-workers"
+  REDIS_CONSUMER_GROUP: "edge-workers"
+  WORKER_ID: "central-edge-worker-1"

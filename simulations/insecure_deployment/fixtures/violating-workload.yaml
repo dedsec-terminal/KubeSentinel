@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sim-insecure-workload
+  namespace: edge-pune
+  labels:
+    app.kubernetes.io/part-of: kubesentinel
+    kubesentinel.io/simulation: insecure-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sim-insecure-workload
+  template:
+    metadata:
+      labels:
+        app: sim-insecure-workload
+    spec:
+      containers:
+        - name: app
+          image: kubesentinel-edge-api:latest
+          imagePullPolicy: Always

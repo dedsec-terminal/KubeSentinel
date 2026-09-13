@@ -1,0 +1,65 @@
+=== HELM VERSION ===
+version.BuildInfo{Version:"v3.17.1", GitCommit:"980d8ac1939e39138101364400756af2bdee1da5", GitTreeState:"clean", GoVersion:"go1.23.5"}
+
+
+=== HELM RELEASES ===
+NAME   	NAMESPACE	REVISION	UPDATED                               	STATUS  	CHART        	APP VERSION
+kyverno	kyverno  	1       	2026-09-13 08:54:56.08988334 +0000 UTC	deployed	kyverno-3.9.1	v1.19.1
+
+
+=== HELM KYVERNO VALUES ===
+USER-SUPPLIED VALUES:
+admissionController:
+  replicas: 1
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 20m
+      memory: 96Mi
+backgroundController:
+  replicas: 1
+  resources:
+    limits:
+      cpu: 150m
+      memory: 192Mi
+    requests:
+      cpu: 20m
+      memory: 64Mi
+cleanupController:
+  replicas: 1
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 10m
+      memory: 48Mi
+image:
+  pullPolicy: IfNotPresent
+reportsController:
+  replicas: 1
+  resources:
+    limits:
+      cpu: 150m
+      memory: 192Mi
+    requests:
+      cpu: 20m
+      memory: 64Mi
+
+
+=== KYVERNO PODS ===
+NAME                                             READY   STATUS    RESTARTS   AGE   IP           NODE                        NOMINATED NODE   READINESS GATES
+kyverno-admission-controller-86cbbb5545-pn4fq    1/1     Running   0          56m   10.42.0.23   k3d-kubesentinel-server-0   <none>           <none>
+kyverno-background-controller-6d7d9488f5-qkhtz   1/1     Running   0          56m   10.42.0.21   k3d-kubesentinel-server-0   <none>           <none>
+kyverno-cleanup-controller-df9999f4f-hzj6r       1/1     Running   0          56m   10.42.0.22   k3d-kubesentinel-server-0   <none>           <none>
+kyverno-reports-controller-85795c5f5-lbdwx       1/1     Running   0          56m   10.42.0.24   k3d-kubesentinel-server-0   <none>           <none>
+
+
+=== KYVERNO DEPLOYMENTS ===
+NAME                            READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS   IMAGES                                                 SELECTOR
+kyverno-admission-controller    1/1     1            1           56m   kyverno      reg.kyverno.io/kyverno/kyverno:v1.19.1                 app.kubernetes.io/component=admission-controller,app.kubernetes.io/instance=kyverno,app.kubernetes.io/part-of=kyverno
+kyverno-background-controller   1/1     1            1           56m   controller   reg.kyverno.io/kyverno/background-controller:v1.19.1   app.kubernetes.io/component=background-controller,app.kubernetes.io/instance=kyverno,app.kubernetes.io/part-of=kyverno
+kyverno-cleanup-controller      1/1     1            1           56m   controller   reg.kyverno.io/kyverno/cleanup-controller:v1.19.1      app.kubernetes.io/component=cleanup-controller,app.kubernetes.io/instance=kyverno,app.kubernetes.io/part-of=kyverno
+kyverno-reports-controller      1/1     1            1           56m   controller   reg.kyverno.io/kyverno/reports-controller:v1.19.1      app.kubernetes.io/component=reports-controller,app.kubernetes.io/instance=kyverno,app.kubernetes.io/part-of=kyverno

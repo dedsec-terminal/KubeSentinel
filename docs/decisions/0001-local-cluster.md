@@ -2,16 +2,16 @@
 
 ## Status
 
-Accepted for Milestone A planning; no cluster deployment is claimed.
+Accepted and implemented in V1.0.0.
 
 ## Decision
 
-Use k3d as the local Kubernetes distribution for the planned V1 development cluster.
+Use k3d as the local Kubernetes distribution for the V1 development cluster.
 
 ## Rationale
 
-k3d 5.9.0 is installed and its empty-cluster query succeeded on the Windows host. It runs lightweight k3s nodes through Docker Desktop, matching the single-local-cluster scope and available resources. kind and Helm were not installed at preflight, so they are not prerequisites for this milestone.
+k3d runs lightweight k3s nodes through Docker Desktop, matching the single-local-cluster scope and available resources. The validated V1 environment uses k3d 5.9.0 with `rancher/k3s:v1.35.5-k3s1`; Helm is required for the pinned Kyverno and Falco deployments.
 
 ## Consequences
 
-The first cluster will be one local k3d cluster with logical Pune, Mumbai, and Bangalore namespaces. This is a development topology, not geographic isolation or production HA. Redis, worker, Fluent Bit, and Elasticsearch are planned V1 components; Falco and Kyverno remain later milestones.
+The cluster remains one local k3d node with logical Pune, Mumbai, and Bangalore namespaces. This provides repeatable namespace-level trust boundaries, but not geographic isolation or production high availability. Redis, the central worker, Fluent Bit, Elasticsearch, Kibana, Kyverno, and Falco all run inside this local topology.

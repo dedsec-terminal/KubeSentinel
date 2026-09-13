@@ -1,0 +1,7 @@
+=======================================================
+ KubeSentinel Milestone F: Controlled Simulations
+=======================================================
+
+[PASS]   redis-unauthorized     (prevention)   Dual Redis controls verified: NetworkPolicy TCP block from unauthorized pod and Redis ACL authentication/least-privilege rejection on authorized path (18.92s)
+
+Summary: Total=1 PASS=1 FAIL=0

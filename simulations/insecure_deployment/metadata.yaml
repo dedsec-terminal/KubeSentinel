@@ -1,0 +1,15 @@
+scenario: insecure-deployment
+description: "Policy-as-Code admission control test attempting to deploy a non-compliant workload manifest violating container security policies."
+hypothesis: "Kyverno validating admission webhook will intercept and reject a deployment fixture that uses the ':latest' image tag and lacks CPU/memory resource requests/limits, preventing admission to the cluster."
+controls_tested:
+  - Kyverno
+  - AdmissionControl
+control_type: prevention
+mitre_attack:
+  id: T1610
+  name: "Deploy Container"
+  related: "T1068 (Exploitation for Privilege Escalation)"
+expected_result: "Admission request rejected by Kyverno webhook with exit code 1; rejection message cites policy violations ('disallow-latest-tag', 'require-resource-requests-limits'); workload is not created."
+observed_result: "Deployment creation blocked by webhook validate.kyverno.svc-fail; rejection explicitly listed disallow-latest-tag, require-resource-requests-limits, and PSA restricted rules; 'kubectl get deployment' confirmed NotFound."
+cleanup: "The workload was never admitted or scheduled; any residual resources cleaned up with --ignore-not-found."
+limitations: "Kyverno webhook blocks admission synchronously (preventive control); admission rejection events remain in Kubernetes events/webhook logs but are not streamed to Elasticsearch (telemetry gap: admission block without SIEM event stream)."

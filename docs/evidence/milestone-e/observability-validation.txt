@@ -1,0 +1,77 @@
+=== OBSERVABILITY VALIDATE OUTPUT ===
+Running Central Observability & Runtime Security Health Validation...
+[PASS]   elasticsearch_cluster_health                  status=green, nodes=1, active_shards=32
+[PASS]   elasticsearch_index_template:kubesentinel-app Index template 'kubesentinel-app' registered with typed mappings
+[PASS]   elasticsearch_index_template:kubesentinel-falco Index template 'kubesentinel-falco' registered with typed mappings
+[PASS]   kibana_status                                 Kibana is available: All services and plugins are available
+[PASS]   kibana_data_view:kubesentinel-app-*           Data view 'kubesentinel-app-*' verified
+[PASS]   kibana_data_view:kubesentinel-falco-*         Data view 'kubesentinel-falco-*' verified
+[PASS]   fluent_bit_daemonset                          DaemonSet ready (1/1)
+[PASS]   fluent_bit_pipeline_health                    K8s metadata filter connectivity OK and Elasticsearch output workers active
+[PASS]   falco_daemonset                               Falco DaemonSet ready (1/1)
+[PASS]   falco_driver_probe                            Modern eBPF syscall probe initialized cleanly
+[PASS]   falco_custom_rules                            KubeSentinel custom rules loaded with valid schema
+
+Summary: Total=11 PASS=11 FAIL=0
+
+
+=== FALCO VALIDATE OUTPUT ===
+Running Falco Runtime Security Validation...
+[PASS]   falco_daemonset_ready                         DaemonSet ready in namespace security-agents (1/1)
+[PASS]   falco_modern_ebpf_driver                      Modern eBPF syscall probe initialized and active on kernel ring buffer
+[PASS]   falco_custom_rule_loaded                      Custom rule 'Unexpected shell in KubeSentinel edge workload' (ATT&CK T1059) active
+[PASS]   controlled_alert_detection                    Detected rule='Unexpected shell in KubeSentinel edge workload', priority='Warning', ns='edge-pune'
+
+Summary: Total=4 PASS=4 FAIL=0
+
+
+=== TELEMETRY SMOKE TEST OUTPUT ===
+Starting KubeSentinel Milestone E Dual End-to-End Telemetry Smoke Test...
+
+=======================================================
+ [PROOF 1] Application Telemetry Pipeline Verification
+=======================================================
+Generating synthetic security event: b7dd5415-6870-4cb6-9e5c-3d905b453d44
+HTTP 202 Accepted: event_id=f5d2405c-c74d-4c80-b45d-e068c3e3143e, redis_stream_id=1789312112864-0
+Waiting for edge-worker processing & Fluent Bit ingestion into Elasticsearch...
+
+Document successfully indexed in Elasticsearch:
+  Index:   kubesentinel-app-2026.09.13
+  Doc ID:  1tRQm6ABBprAIohfGzjD
+  [OK] event_id: f5d2405c-c74d-4c80-b45d-e068c3e3143e
+  [OK] edge_site: pune
+  [OK] severity: critical
+  [OK] log_type: security_event_processed
+  [OK] processing_status: success
+  [OK] redis_stream_id: 1789312112864-0
+  [OK] worker: central-edge-worker-1
+  [OK] timestamp: 2026-09-13T15:08:32.771188Z
+  [OK] processed_at: 2026-09-13T15:08:33.198225Z
+  [OK] kubernetes: {"pod_name": "edge-worker-7555fb84b7-d2pnj", "namespace_name...
+  [OK] kubernetes.pod_name: edge-worker-7555fb84b7-d2pnj
+  [OK] kubernetes.namespace_name: kubesentinel-system
+
+[PASS] Proof 1 verified: End-to-end application telemetry ingestion confirmed.
+
+=======================================================
+ [PROOF 2] Runtime Security Telemetry Pipeline Verification
+=======================================================
+Triggering controlled shell execution with marker: falco-proof-6d4ec699
+Command executed successfully. Waiting for Falco detection & Fluent Bit forwarding to ES...
+
+Falco Alert Document successfully indexed in Elasticsearch:
+  Index:   kubesentinel-falco-2026.09.13
+  Doc ID:  3tRQm6ABBprAIohfNzgh
+  [OK] rule:         Unexpected shell in KubeSentinel edge workload
+  [OK] priority:     Warning
+  [OK] source:       syscall
+  [OK] namespace:    edge-pune
+  [OK] pod:          edge-api-7db6db7d68-ft6jq
+  [OK] proc_cmdline: sh -c echo falco-proof-6d4ec699
+  [OK] @timestamp:   2026-09-13T15:08:40.074Z
+
+[PASS] Proof 2 verified: End-to-end runtime security telemetry alert ingestion confirmed.
+
+=======================================================
+ [SUMMARY] DUAL TELEMETRY SMOKE TEST: ALL PROOFS PASSED
+=======================================================

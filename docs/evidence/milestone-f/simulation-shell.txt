@@ -1,0 +1,7 @@
+=======================================================
+ KubeSentinel Milestone F: Controlled Simulations
+=======================================================
+
+[PASS]   shell                  (detection)    Falco detected shell in edge-pune (rule: 'Unexpected shell in KubeSentinel edge workload', priority: 'Warning') and indexed in Elasticsearch (6.604s)
+
+Summary: Total=1 PASS=1 FAIL=0

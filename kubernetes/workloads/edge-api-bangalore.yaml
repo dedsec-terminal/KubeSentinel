@@ -1,0 +1,109 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edge-api
+  namespace: edge-bangalore
+  labels:
+    app: edge-api
+    edge-site: bangalore
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: edge-api
+      edge-site: bangalore
+  template:
+    metadata:
+      labels:
+        app: edge-api
+        edge-site: bangalore
+    spec:
+      serviceAccountName: edge-api-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: edge-api
+          image: kubesentinel-edge-api:0.2.0
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10001
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+            seccompProfile:
+              type: RuntimeDefault
+          ports:
+            - name: http
+              containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: edge-api-config
+          env:
+            - name: REDIS_PRODUCER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-auth-secret
+                  key: REDIS_PRODUCER_PASSWORD
+            - name: KUBERNETES_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: KUBERNETES_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          resources:
+            requests:
+              cpu: 20m
+              memory: 48Mi
+            limits:
+              cpu: 150m
+              memory: 128Mi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: edge-api
+  namespace: edge-bangalore
+  labels:
+    app: edge-api
+    edge-site: bangalore
+spec:
+  type: ClusterIP
+  selector:
+    app: edge-api
+    edge-site: bangalore
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000

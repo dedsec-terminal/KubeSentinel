@@ -1,0 +1,14 @@
+scenario: lateral-access
+description: "Cross-namespace network segmentation test attempting lateral communication between isolated edge site workloads (edge-pune -> edge-mumbai)."
+hypothesis: "NetworkPolicy default-deny and workload isolation rules will drop/reject cross-namespace network connections between edge sites attempting to access edge-api.edge-mumbai.svc.cluster.local:8000."
+controls_tested:
+  - NetworkPolicy
+control_type: prevention
+mitre_attack:
+  id: T1021
+  name: "Remote Services"
+  related: "T1570 (Lateral Tool Transfer)"
+expected_result: "Network connection attempt from edge-pune workload to edge-mumbai workload fails with connection timeout or connection refused within bounded timeout (max 5s)."
+observed_result: "TCP connection attempt to edge-api.edge-mumbai.svc.cluster.local:8000 was blocked by active NetworkPolicy (ConnectionRefusedError / TimeoutError); no lateral access established."
+cleanup: "Non-destructive socket probe terminated cleanly; no state modified; edge workloads remain healthy."
+limitations: "Calico / Kubernetes NetworkPolicy drops packets silently at the data plane without generating indexed alert telemetry; this is a pure preventive segmentation control (telemetry gap: network drop without SIEM alert)."

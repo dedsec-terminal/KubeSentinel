@@ -1,0 +1,34 @@
+id: kubesentinel-app-high-severity-event
+name: High-Severity Security Event Triage
+description: Identifies high-severity or critical security events emitted by edge workloads and ingested via authenticated Redis Streams and edge-worker processing, as well as stream processing error states.
+severity: high
+status: production
+index: kubesentinel-app-*
+language: lucene
+query: '(severity:(high OR critical) OR processing_status:error)'
+required_fields:
+  - severity
+  - processing_status
+  - event_id
+  - edge_site
+  - service
+  - source
+hypothesis: >
+  Events tagged high or critical, and stream-processing errors, require operational review because
+  they may indicate application abuse, malformed input, upstream sensor failure, or pipeline faults.
+  Severity and processing state alone do not establish a specific adversary technique, so this rule
+  intentionally has no MITRE ATT&CK mapping.
+investigation_guide: |
+  1. Query the event by event_id and review the message, source, and destination fields.
+  2. Inspect edge_site to identify the originating regional facility (pune, mumbai, bangalore).
+  3. Review metadata for trace IDs, proof IDs, or target payload details.
+  4. If processing_status is error, inspect the malformed payload in the Redis stream or worker dead-letter logs.
+  5. Cross-reference with edge-api ingress request rates to determine whether an active credential brute-force or injection attempt is underway.
+false_positives:
+  - Automated end-to-end security smoke tests (e.g. telemetry-smoke, simulation runner) generating synthetic high/critical test events.
+  - Transient upstream sensor timeouts logged with high severity.
+limitations: >
+  Relies on application code properly assigning severity levels and emitting valid JSON
+  to Redis Streams. Does not detect silent application tampering that bypasses logging.
+  Generic high-severity triage does not substantiate an exploit, denial of service, or other
+  technique without correlation to ingress, workload, and infrastructure telemetry.

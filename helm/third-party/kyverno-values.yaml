@@ -1,0 +1,49 @@
+# Pinned Kyverno Helm Values for KubeSentinel Local Lab
+# Chart: kyverno/kyverno (version: 3.9.1)
+# App Version: v1.19.1
+# Resource-conscious single-replica configuration for local laboratory testing
+
+# Explicit single replicas for all controllers
+admissionController:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 20m
+      memory: 96Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+backgroundController:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 20m
+      memory: 64Mi
+    limits:
+      cpu: 150m
+      memory: 192Mi
+
+cleanupController:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 10m
+      memory: 48Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+
+reportsController:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 20m
+      memory: 64Mi
+    limits:
+      cpu: 150m
+      memory: 192Mi
+
+# Image pull policy to utilize local/cached images
+image:
+  pullPolicy: IfNotPresent

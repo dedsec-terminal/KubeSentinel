@@ -1,0 +1,84 @@
+=== PROOF 1: APPLICATION TELEMETRY END-TO-END INGESTION ===
+Timestamp: 2026-09-13T15:07:36Z
+Synthetic Proof UUID: b0df0e69-2bed-4779-9a4d-6f497f96732a
+Target Endpoint: edge-api.edge-pune (POST /events)
+HTTP Response: 202 Accepted
+Returned event_id: c6ad001e-7540-49b2-900d-5ea9311f97da
+Returned redis_stream_id: 1789312051182-0
+
+--- Elasticsearch Index Verification ---
+Document Found: True
+Index: kubesentinel-app-2026.09.13
+Document ID: mNRPm6ABBprAIohfKTib
+
+--- Full Indexed Document Source (_source) ---
+{
+  "@timestamp": "2026-09-13T15:07:31.239Z",
+  "stream": "stdout",
+  "_p": "F",
+  "log_type": "security_event_processed",
+  "processing_status": "success",
+  "redis_stream_id": "1789312051182-0",
+  "worker": "central-edge-worker-1",
+  "processed_at": "2026-09-13T15:07:31.183474Z",
+  "schema_version": "1.0",
+  "timestamp": "2026-09-13T15:07:31.175103Z",
+  "event_id": "c6ad001e-7540-49b2-900d-5ea9311f97da",
+  "edge_site": "pune",
+  "namespace": "local-compose",
+  "service": "edge-api",
+  "event_type": "security_evidence_trace",
+  "severity": "critical",
+  "source": "evidence-generator-pune",
+  "destination": "central-siem",
+  "message": "Milestone E authoritative application telemetry proof b0df0e69-2bed-4779-9a4d-6f497f96732a",
+  "metadata": {
+    "evidence_id": "b0df0e69-2bed-4779-9a4d-6f497f96732a",
+    "site": "pune",
+    "proof_type": "application_telemetry_e2e",
+    "pod_name": "edge-api-7db6db7d68-ft6jq",
+    "container_name": "edge-api",
+    "node_name": "k3d-kubesentinel-server-0",
+    "k8s_namespace": "edge-pune",
+    "namespace": "edge-pune",
+    "k8s": {
+      "pod_name": "edge-api-7db6db7d68-ft6jq",
+      "container_name": "edge-api",
+      "node_name": "k3d-kubesentinel-server-0",
+      "namespace": "edge-pune"
+    }
+  },
+  "pod": null,
+  "container": null,
+  "node": null,
+  "kubernetes": {
+    "pod_name": "edge-worker-7555fb84b7-d2pnj",
+    "namespace_name": "kubesentinel-system",
+    "pod_id": "a14c4d4c-0655-49dc-a83b-fac21621b104",
+    "labels": {
+      "app": "edge-worker",
+      "pod-template-hash": "7555fb84b7"
+    },
+    "annotations": {
+      "kubectl_kubernetes_io/restartedAt": "2026-09-13T09:50:29Z"
+    },
+    "host": "k3d-kubesentinel-server-0",
+    "pod_ip": "10.42.0.35",
+    "container_name": "edge-worker",
+    "docker_id": "170bc131f26b7e8597a1956dc03e7196033c43aa41ad274065439f2313acae95",
+    "container_hash": "sha256:22c8521d22b2fab0db7eb841e7fe01f1f1ed8ac8cb29378bfa119facf1455de8",
+    "container_image": "docker.io/library/kubesentinel-edge-worker:0.2.0"
+  }
+}
+
+--- Field Assertion Ledger ---
+  [PASS] field 'event_id': c6ad001e-7540-49b2-900d-5ea9311f97da
+  [PASS] field 'edge_site': pune
+  [PASS] field 'severity': critical
+  [PASS] field 'log_type': security_event_processed
+  [PASS] field 'processing_status': success
+  [PASS] field 'redis_stream_id': 1789312051182-0
+  [PASS] field 'worker': central-edge-worker-1
+  [PASS] field 'timestamp': 2026-09-13T15:07:31.175103Z
+  [PASS] field 'processed_at': 2026-09-13T15:07:31.183474Z
+  [PASS] field 'kubernetes': {"pod_name": "edge-worker-7555fb84b7-d2pnj", "namespace_name": "kubesentinel-system", "pod_id": "a14c4d4c-0655-49dc-a83b-fac21621b104", "labels": {"app": "edge-worker", "pod-template-hash": "7555fb84b7"}, "annotations": {"kubectl_kubernetes_io/restartedAt": "2026-09-13T09:50:29Z"}, "host": "k3d-kubesentinel-server-0", "pod_ip": "10.42.0.35", "container_name": "edge-worker", "docker_id": "170bc131f26b7e8597a1956dc03e7196033c43aa41ad274065439f2313acae95", "container_hash": "sha256:22c8521d22b2fab0db7eb841e7fe01f1f1ed8ac8cb29378bfa119facf1455de8", "container_image": "docker.io/library/kubesentinel-edge-worker:0.2.0"}

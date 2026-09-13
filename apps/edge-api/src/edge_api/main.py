@@ -68,6 +68,23 @@ def create_event(
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> EventCorrelationResponse:
     """Ingest security event, enrich with server metadata, and stream to Redis."""
+    if settings.pod_name:
+        enriched_metadata = dict(payload.metadata) if payload.metadata else {}
+        enriched_metadata["pod_name"] = settings.pod_name
+        enriched_metadata["container_name"] = "edge-api"
+        if settings.node_name:
+            enriched_metadata["node_name"] = settings.node_name
+        if settings.k8s_namespace:
+            enriched_metadata["k8s_namespace"] = settings.k8s_namespace
+            enriched_metadata["namespace"] = settings.k8s_namespace
+        enriched_metadata["k8s"] = {
+            "pod_name": settings.pod_name,
+            "container_name": "edge-api",
+            "node_name": settings.node_name,
+            "namespace": settings.k8s_namespace or settings.namespace,
+        }
+        payload = payload.model_copy(update={"metadata": enriched_metadata})
+
     event = create_security_event(
         payload,
         edge_site=settings.edge_site,

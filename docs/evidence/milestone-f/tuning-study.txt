@@ -1,0 +1,37 @@
+=== EMPIRICAL DETECTION TUNING EVALUATION ENGINE ===
+
+Executing evaluation against live Elasticsearch...
+{
+  "v1_query": "rule:\"Unexpected shell in KubeSentinel edge workload\"",
+  "v2_query": "rule:\"Unexpected shell in KubeSentinel edge workload\" AND output_fields.k8s_ns_name.keyword:(\"edge-pune\" OR \"edge-mumbai\" OR \"edge-bangalore\") AND output_fields.container_name.keyword:\"edge-api\" AND output_fields.user_uid:10001 AND NOT output_fields.proc_cmdline.keyword:(*diag-maintenance* OR *healthcheck*)",
+  "total_v1_events": 33,
+  "total_v2_events": 25,
+  "total_controlled_scenarios": 25,
+  "controlled_scenarios_retained_by_v2": 25,
+  "controlled_retention_rate_pct": 100.0,
+  "total_benign_maintenance_events": 8,
+  "benign_maintenance_suppressed_by_v2": 8,
+  "benign_maintenance_captured_by_v2": 0,
+  "benign_suppression_rate_pct": 100.0,
+  "lab_noise_reduction_pct": 100.0,
+  "overall_candidate_reduction_pct": 24.24
+}
+Metrics saved to: D:\KubeSentinel\docs\detection-tuning\tuning_metrics.json
+
+=== COMMITTED TUNING METRICS ARTIFACT (tuning_metrics.json) ===
+
+{
+  "v1_query": "rule:\"Unexpected shell in KubeSentinel edge workload\"",
+  "v2_query": "rule:\"Unexpected shell in KubeSentinel edge workload\" AND output_fields.k8s_ns_name.keyword:(\"edge-pune\" OR \"edge-mumbai\" OR \"edge-bangalore\") AND output_fields.container_name.keyword:\"edge-api\" AND output_fields.user_uid:10001 AND NOT output_fields.proc_cmdline.keyword:(*diag-maintenance* OR *healthcheck*)",
+  "total_v1_events": 33,
+  "total_v2_events": 25,
+  "total_controlled_scenarios": 25,
+  "controlled_scenarios_retained_by_v2": 25,
+  "controlled_retention_rate_pct": 100.0,
+  "total_benign_maintenance_events": 8,
+  "benign_maintenance_suppressed_by_v2": 8,
+  "benign_maintenance_captured_by_v2": 0,
+  "benign_suppression_rate_pct": 100.0,
+  "lab_noise_reduction_pct": 100.0,
+  "overall_candidate_reduction_pct": 24.24
+}

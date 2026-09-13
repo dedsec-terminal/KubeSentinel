@@ -1,0 +1,7 @@
+=======================================================
+ KubeSentinel Milestone F: Controlled Simulations
+=======================================================
+
+[PASS]   insecure-deployment    (prevention)   Kyverno admission webhook blocked non-compliant deployment 'sim-insecure-workload' (violated policies: disallow-latest-tag, require-resource-requests-limits, disallow-privilege-escalation, require-drop-all-capabilities, require-run-as-non-root, require-runtime-default-seccomp) (0.98s)
+
+Summary: Total=1 PASS=1 FAIL=0

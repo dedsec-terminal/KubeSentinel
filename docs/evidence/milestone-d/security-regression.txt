@@ -1,0 +1,59 @@
+=== SECURITY REGRESSION VALIDATION ===
+
+1. POD SECURITY ADMISSION (PSA) LABELS:
+NAME                  ENFORCE      WARN         AUDIT
+default               <none>       <none>       <none>
+edge-bangalore        restricted   restricted   restricted
+edge-mumbai           restricted   restricted   restricted
+edge-pune             restricted   restricted   restricted
+kube-node-lease       <none>       <none>       <none>
+kube-public           <none>       <none>       <none>
+kube-system           <none>       <none>       <none>
+kubesentinel-system   restricted   restricted   restricted
+kyverno               privileged   privileged   privileged
+observability         baseline     baseline     baseline
+
+
+2. PSA NEGATIVE REJECTION TEST:
+Return code: 1
+Error from server (Forbidden): error when creating "STDIN": pods "psa-negative-pod" is forbidden: violates PodSecurity "restricted:latest": host namespaces (hostPID=true), privileged (container "disallowed-container" must not set securityContext.privileged=true), allowPrivilegeEscalation != false (container "disallowed-container" must set securityContext.allowPrivilegeEscalation=false), unrestricted capabilities (container "disallowed-container" must set securityContext.capabilities.drop=["ALL"]; container "disallowed-container" must not include "SYS_ADMIN" in securityContext.capabilities.add), runAsNonRoot != true (pod or container "disallowed-container" must set securityContext.runAsNonRoot=true), seccompProfile (pod or container "disallowed-container" must set securityContext.seccompProfile.type to "RuntimeDefault" or "Localhost")
+
+
+3. SERVICEACCOUNT AUTOMOUNT TOKEN STATUS:
+NAMESPACE            NAME             AUTOMOUNT
+edge-pune            edge-api-sa      false
+edge-mumbai          edge-api-sa      false
+edge-bangalore       edge-api-sa      false
+kubesentinel-system  edge-worker-sa   false
+kubesentinel-system  redis-sa         false
+
+4. RBAC LEAST-PRIVILEGE AUDIT (can-i):
+ServiceAccount edge-api-sa in edge-pune:
+  can-i list pods: no
+  can-i get secrets: no
+  can-i create pods: no
+  can-i delete services: no
+ServiceAccount edge-api-sa in edge-mumbai:
+  can-i list pods: no
+  can-i get secrets: no
+  can-i create pods: no
+  can-i delete services: no
+ServiceAccount edge-api-sa in edge-bangalore:
+  can-i list pods: no
+  can-i get secrets: no
+  can-i create pods: no
+  can-i delete services: no
+ServiceAccount edge-worker-sa in kubesentinel-system:
+  can-i list pods: no
+  can-i get secrets: no
+  can-i create pods: no
+  can-i delete services: no
+ServiceAccount redis-sa in kubesentinel-system:
+  can-i list pods: no
+  can-i get secrets: no
+  can-i create pods: no
+  can-i delete services: no
+
+5. REDIS CLUSTERIP & PORT EXPOSURE:
+NAME    TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE    SELECTOR
+redis   ClusterIP   10.43.197.193   <none>        6379/TCP   117m   app=redis

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-config
+  namespace: kubesentinel-system
+data:
+  redis.conf: |
+    port 6379
+    protected-mode yes
+    aclfile /etc/redis/users.acl
+    dir /data
+    bind 0.0.0.0

@@ -1,0 +1,14 @@
+scenario: shell
+description: "Controlled interactive shell execution inside an edge workload pod (edge-pune/edge-api) using a unique correlation marker to verify Falco runtime detection and Elasticsearch indexing."
+hypothesis: "Spawning a shell process (/bin/sh) inside a hardened edge workload pod will trigger Falco's custom rule 'Unexpected shell in KubeSentinel edge workload' (ATT&CK T1059.004), which Fluent Bit captures and indexes into Elasticsearch (kubesentinel-falco-*)."
+controls_tested:
+  - Falco
+control_type: detection
+mitre_attack:
+  id: T1059
+  name: "Command and Scripting Interpreter: Unix Shell"
+  subtechnique: T1059.004
+expected_result: "Shell execution succeeds safely (exit code 0); Falco alert generated with rule 'Unexpected shell in KubeSentinel edge workload' and priority 'Warning'; alert document indexed into Elasticsearch kubesentinel-falco-* within 20s."
+observed_result: "Shell executed with unique correlation marker; Falco captured syscall execve for /bin/sh; alert ingested into Elasticsearch kubesentinel-falco-* with matching proc_cmdline and pod metadata."
+cleanup: "Non-destructive read-only echo command executed; no persistent processes or file artifacts created; pod remains 1/1 Running and healthy."
+limitations: "Falco detects the process execution at the host kernel ring-buffer layer; detection latency depends on Fluent Bit buffer flush interval (~2-5s); shell execution itself is not prevented by PSA or Kyverno in baseline running containers without admission/runtime blocking."

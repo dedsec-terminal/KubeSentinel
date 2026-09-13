@@ -1,0 +1,14 @@
+scenario: rbac-denial
+description: "Authorization boundary testing of a low-privilege workload ServiceAccount attempting unauthorized Kubernetes API operations."
+hypothesis: "The edge-api-sa ServiceAccount (with automountServiceAccountToken: false and zero RBAC RoleBindings) will receive an HTTP 403 Forbidden response when attempting to list or read secrets from the cluster API."
+controls_tested:
+  - RBAC
+control_type: prevention
+mitre_attack:
+  id: T1613
+  name: "Container and Resource Discovery"
+  related: "T1069 (Permission Groups Discovery)"
+expected_result: "API server returns HTTP 403 Forbidden with Reason 'Forbidden' for 'GET /api/v1/namespaces/kube-system/secrets' or similar resource request without privilege escalation."
+observed_result: "HTTP 403 Forbidden returned by Kubernetes API server: 'secrets is forbidden: User system:serviceaccount:edge-pune:edge-api-sa cannot list resource secrets in API group in namespace kube-system'."
+cleanup: "Ephemeral bound token expired or discarded; zero API server state modified."
+limitations: "Kubernetes API audit logging is not forwarded to Elasticsearch in this lab configuration; RBAC denial is enforced preventively at the control plane without indexed SIEM detection telemetry (telemetry gap: API authorization rejection without centralized audit indexing)."

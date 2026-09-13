@@ -1,0 +1,41 @@
+=== Step 1: Ingesting events across edge sites ===
+
+Sending HTTP POST /events to edge-pune (site: pune)...
+[PUNE] HTTP 202 Accepted: event_id=104362a0-6035-4e07-bd18-38b3f8c20d44, stream_id=1789287137384-0
+
+Sending HTTP POST /events to edge-mumbai (site: mumbai)...
+[MUMBAI] HTTP 202 Accepted: event_id=21105db2-65aa-48c5-937e-39c41b0aba4a, stream_id=1789287143565-0
+
+Sending HTTP POST /events to edge-bangalore (site: bangalore)...
+[BANGALORE] HTTP 202 Accepted: event_id=af3fe5ce-dbb5-4b17-a1bc-4bab764dbe30, stream_id=1789287148731-0
+
+=== Step 2: Verifying central worker processing and Downward API metadata ===
+
+[VERIFIED PUNE]
+  Stream ID:      1789287137384-0
+  Pod Name:       edge-api-764b897d54-qt588
+  Node Name:      k3d-kubesentinel-server-0
+  K8s Namespace:  edge-pune
+  Container Name: edge-api
+
+[VERIFIED MUMBAI]
+  Stream ID:      1789287143565-0
+  Pod Name:       edge-api-99d4556d5-qk5cq
+  Node Name:      k3d-kubesentinel-server-0
+  K8s Namespace:  edge-mumbai
+  Container Name: edge-api
+
+[VERIFIED BANGALORE]
+  Stream ID:      1789287148731-0
+  Pod Name:       edge-api-5d87c75bf-4fsnp
+  Node Name:      k3d-kubesentinel-server-0
+  K8s Namespace:  edge-bangalore
+  Container Name: edge-api
+
+=== Step 3: Verifying Redis Stream Acknowledgment (XACK) ===
+Redis XPENDING output:
+0
+
+[PASS] All messages successfully acknowledged via XACK (PEL pending count: 0)!
+
+[PASS] Multi-site end-to-end smoke verification PASSED across Pune, Mumbai, Bangalore!

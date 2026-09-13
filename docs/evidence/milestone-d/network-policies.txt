@@ -1,0 +1,486 @@
+=== NETWORK POLICIES (ALL NAMESPACES) ===
+NAMESPACE             NAME                     POD-SELECTOR          AGE
+edge-bangalore        allow-dns-egress         <none>                65m
+edge-bangalore        default-deny-all         <none>                65m
+edge-bangalore        edge-api-policy          app=edge-api          65m
+edge-mumbai           allow-dns-egress         <none>                65m
+edge-mumbai           default-deny-all         <none>                65m
+edge-mumbai           edge-api-policy          app=edge-api          65m
+edge-pune             allow-dns-egress         <none>                65m
+edge-pune             default-deny-all         <none>                65m
+edge-pune             edge-api-policy          app=edge-api          65m
+kubesentinel-system   allow-dns-egress         <none>                65m
+kubesentinel-system   default-deny-all         <none>                65m
+kubesentinel-system   edge-worker-policy       app=edge-worker       65m
+kubesentinel-system   redis-access             app=redis             65m
+kubesentinel-system   redis-bootstrap-policy   app=redis-bootstrap   65m
+
+
+=== POLICIES IN kubesentinel-system ===
+apiVersion: v1
+items:
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{},"labels":{"app.kubernetes.io/part-of":"kubesentinel","kubesentinel.io/policy":"allow-dns"},"name":"allow-dns-egress","namespace":"kubesentinel-system"},"spec":{"egress":[{"ports":[{"port":53,"protocol":"UDP"},{"port":53,"protocol":"TCP"}],"to":[{"namespaceSelector":{"matchLabels":{"kubernetes.io/metadata.name":"kube-system"}},"podSelector":{"matchLabels":{"k8s-app":"kube-dns"}}}]}],"podSelector":{},"policyTypes":["Egress"]}}
+    creationTimestamp: "2026-09-13T08:46:14Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/part-of: kubesentinel
+      kubesentinel.io/policy: allow-dns
+    name: allow-dns-egress
+    namespace: kubesentinel-system
+    resourceVersion: "1908"
+    uid: e3c88d14-09e0-4694-9231-e15579ebfeb2
+  spec:
+    egress:
+    - ports:
+      - port: 53
+        protocol: UDP
+      - port: 53
+        protocol: TCP
+      to:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: kube-system
+        podSelector:
+          matchLabels:
+            k8s-app: kube-dns
+    podSelector: {}
+    policyTypes:
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{},"labels":{"app.kubernetes.io/part-of":"kubesentinel","kubesentinel.io/policy":"default-deny"},"name":"default-deny-all","namespace":"kubesentinel-system"},"spec":{"podSelector":{},"policyTypes":["Ingress","Egress"]}}
+    creationTimestamp: "2026-09-13T08:46:15Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/part-of: kubesentinel
+      kubesentinel.io/policy: default-deny
+    name: default-deny-all
+    namespace: kubesentinel-system
+    resourceVersion: "1912"
+    uid: 60899fee-95ad-42c1-a7c8-e32294a3ee22
+  spec:
+    podSelector: {}
+    policyTypes:
+    - Ingress
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{},"labels":{"app.kubernetes.io/part-of":"kubesentinel","kubesentinel.io/policy":"edge-worker-traffic"},"name":"edge-worker-policy","namespace":"kubesentinel-system"},"spec":{"egress":[{"ports":[{"port":6379,"protocol":"TCP"}],"to":[{"podSelector":{"matchLabels":{"app":"redis"}}}]}],"ingress":[],"podSelector":{"matchLabels":{"app":"edge-worker"}},"policyTypes":["Ingress","Egress"]}}
+    creationTimestamp: "2026-09-13T08:46:16Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/part-of: kubesentinel
+      kubesentinel.io/policy: edge-worker-traffic
+    name: edge-worker-policy
+    namespace: kubesentinel-system
+    resourceVersion: "1919"
+    uid: d32c83b6-e1e3-4d4d-b7fc-d32b71d4a2ac
+  spec:
+    egress:
+    - ports:
+      - port: 6379
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app: redis
+    podSelector:
+      matchLabels:
+        app: edge-worker
+    policyTypes:
+    - Ingress
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{},"labels":{"app.kubernetes.io/part-of":"kubesentinel","kubesentinel.io/policy":"redis-access"},"name":"redis-access","namespace":"kubesentinel-system"},"spec":{"egress":[],"ingress":[{"from":[{"namespaceSelector":{"matchExpressions":[{"key":"kubernetes.io/metadata.name","operator":"In","values":["edge-pune","edge-mumbai","edge-bangalore"]}]},"podSelector":{"matchLabels":{"app":"edge-api"}}},{"podSelector":{"matchLabels":{"app":"edge-worker"}}},{"podSelector":{"matchLabels":{"app":"redis-bootstrap"}}}],"ports":[{"port":6379,"protocol":"TCP"}]}],"podSelector":{"matchLabels":{"app":"redis"}},"policyTypes":["Ingress","Egress"]}}
+    creationTimestamp: "2026-09-13T08:46:17Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/part-of: kubesentinel
+      kubesentinel.io/policy: redis-access
+    name: redis-access
+    namespace: kubesentinel-system
+    resourceVersion: "1923"
+    uid: 1c46c094-baf2-401b-a9a0-bddda463bfec
+  spec:
+    ingress:
+    - from:
+      - namespaceSelector:
+          matchExpressions:
+          - key: kubernetes.io/metadata.name
+            operator: In
+            values:
+            - edge-pune
+            - edge-mumbai
+            - edge-bangalore
+        podSelector:
+          matchLabels:
+            app: edge-api
+      - podSelector:
+          matchLabels:
+            app: edge-worker
+      - podSelector:
+          matchLabels:
+            app: redis-bootstrap
+      ports:
+      - port: 6379
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app: redis
+    policyTypes:
+    - Ingress
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{},"labels":{"app.kubernetes.io/part-of":"kubesentinel","kubesentinel.io/policy":"redis-bootstrap-traffic"},"name":"redis-bootstrap-policy","namespace":"kubesentinel-system"},"spec":{"egress":[{"ports":[{"port":6379,"protocol":"TCP"}],"to":[{"podSelector":{"matchLabels":{"app":"redis"}}}]}],"ingress":[],"podSelector":{"matchLabels":{"app":"redis-bootstrap"}},"policyTypes":["Ingress","Egress"]}}
+    creationTimestamp: "2026-09-13T08:46:16Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/part-of: kubesentinel
+      kubesentinel.io/policy: redis-bootstrap-traffic
+    name: redis-bootstrap-policy
+    namespace: kubesentinel-system
+    resourceVersion: "1920"
+    uid: d723b36b-8cbd-4fdf-bfe2-cd2b49d3ed40
+  spec:
+    egress:
+    - ports:
+      - port: 6379
+        protocol: TCP
+      to:
+      - podSelector:
+          matchLabels:
+            app: redis
+    podSelector:
+      matchLabels:
+        app: redis-bootstrap
+    policyTypes:
+    - Ingress
+    - Egress
+kind: List
+metadata:
+  resourceVersion: ""
+
+
+=== POLICIES IN edge-pune ===
+apiVersion: v1
+items:
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{},"labels":{"app.kubernetes.io/part-of":"kubesentinel","kubesentinel.io/policy":"allow-dns"},"name":"allow-dns-egress","namespace":"edge-pune"},"spec":{"egress":[{"ports":[{"port":53,"protocol":"UDP"},{"port":53,"protocol":"TCP"}],"to":[{"namespaceSelector":{"matchLabels":{"kubernetes.io/metadata.name":"kube-system"}},"podSelector":{"matchLabels":{"k8s-app":"kube-dns"}}}]}],"podSelector":{},"policyTypes":["Egress"]}}
+    creationTimestamp: "2026-09-13T08:46:14Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/part-of: kubesentinel
+      kubesentinel.io/policy: allow-dns
+    name: allow-dns-egress
+    namespace: edge-pune
+    resourceVersion: "1909"
+    uid: 241ddfe0-e972-4e64-8e94-cbf73a8470fb
+  spec:
+    egress:
+    - ports:
+      - port: 53
+        protocol: UDP
+      - port: 53
+        protocol: TCP
+      to:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: kube-system
+        podSelector:
+          matchLabels:
+            k8s-app: kube-dns
+    podSelector: {}
+    policyTypes:
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{},"labels":{"app.kubernetes.io/part-of":"kubesentinel","kubesentinel.io/policy":"default-deny"},"name":"default-deny-all","namespace":"edge-pune"},"spec":{"podSelector":{},"policyTypes":["Ingress","Egress"]}}
+    creationTimestamp: "2026-09-13T08:46:15Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/part-of: kubesentinel
+      kubesentinel.io/policy: default-deny
+    name: default-deny-all
+    namespace: edge-pune
+    resourceVersion: "1913"
+    uid: 3a20377b-7a50-4465-9e0f-10f5814fb9fe
+  spec:
+    podSelector: {}
+    policyTypes:
+    - Ingress
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{},"labels":{"app.kubernetes.io/part-of":"kubesentinel","kubesentinel.io/policy":"edge-api-traffic"},"name":"edge-api-policy","namespace":"edge-pune"},"spec":{"egress":[{"ports":[{"port":6379,"protocol":"TCP"}],"to":[{"namespaceSelector":{"matchLabels":{"kubernetes.io/metadata.name":"kubesentinel-system"}},"podSelector":{"matchLabels":{"app":"redis"}}}]}],"ingress":[{"from":[{"podSelector":{}},{"namespaceSelector":{"matchLabels":{"kubernetes.io/metadata.name":"kubesentinel-system"}}}],"ports":[{"port":8000,"protocol":"TCP"}]}],"podSelector":{"matchLabels":{"app":"edge-api"}},"policyTypes":["Ingress","Egress"]}}
+    creationTimestamp: "2026-09-13T08:46:16Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/part-of: kubesentinel
+      kubesentinel.io/policy: edge-api-traffic
+    name: edge-api-policy
+    namespace: edge-pune
+    resourceVersion: "1916"
+    uid: a7262670-cd0f-4fb0-8cdc-f30eb7df1d3f
+  spec:
+    egress:
+    - ports:
+      - port: 6379
+        protocol: TCP
+      to:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: kubesentinel-system
+        podSelector:
+          matchLabels:
+            app: redis
+    ingress:
+    - from:
+      - podSelector: {}
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: kubesentinel-system
+      ports:
+      - port: 8000
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app: edge-api
+    policyTypes:
+    - Ingress
+    - Egress
+kind: List
+metadata:
+  resourceVersion: ""
+
+
+=== POLICIES IN edge-mumbai ===
+apiVersion: v1
+items:
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{},"labels":{"app.kubernetes.io/part-of":"kubesentinel","kubesentinel.io/policy":"allow-dns"},"name":"allow-dns-egress","namespace":"edge-mumbai"},"spec":{"egress":[{"ports":[{"port":53,"protocol":"UDP"},{"port":53,"protocol":"TCP"}],"to":[{"namespaceSelector":{"matchLabels":{"kubernetes.io/metadata.name":"kube-system"}},"podSelector":{"matchLabels":{"k8s-app":"kube-dns"}}}]}],"podSelector":{},"policyTypes":["Egress"]}}
+    creationTimestamp: "2026-09-13T08:46:14Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/part-of: kubesentinel
+      kubesentinel.io/policy: allow-dns
+    name: allow-dns-egress
+    namespace: edge-mumbai
+    resourceVersion: "1910"
+    uid: c2b51089-d1a6-4862-840c-36932639c009
+  spec:
+    egress:
+    - ports:
+      - port: 53
+        protocol: UDP
+      - port: 53
+        protocol: TCP
+      to:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: kube-system
+        podSelector:
+          matchLabels:
+            k8s-app: kube-dns
+    podSelector: {}
+    policyTypes:
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{},"labels":{"app.kubernetes.io/part-of":"kubesentinel","kubesentinel.io/policy":"default-deny"},"name":"default-deny-all","namespace":"edge-mumbai"},"spec":{"podSelector":{},"policyTypes":["Ingress","Egress"]}}
+    creationTimestamp: "2026-09-13T08:46:15Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/part-of: kubesentinel
+      kubesentinel.io/policy: default-deny
+    name: default-deny-all
+    namespace: edge-mumbai
+    resourceVersion: "1914"
+    uid: 66b80177-83a8-40f0-b0c1-a24b2e06b084
+  spec:
+    podSelector: {}
+    policyTypes:
+    - Ingress
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{},"labels":{"app.kubernetes.io/part-of":"kubesentinel","kubesentinel.io/policy":"edge-api-traffic"},"name":"edge-api-policy","namespace":"edge-mumbai"},"spec":{"egress":[{"ports":[{"port":6379,"protocol":"TCP"}],"to":[{"namespaceSelector":{"matchLabels":{"kubernetes.io/metadata.name":"kubesentinel-system"}},"podSelector":{"matchLabels":{"app":"redis"}}}]}],"ingress":[{"from":[{"podSelector":{}},{"namespaceSelector":{"matchLabels":{"kubernetes.io/metadata.name":"kubesentinel-system"}}}],"ports":[{"port":8000,"protocol":"TCP"}]}],"podSelector":{"matchLabels":{"app":"edge-api"}},"policyTypes":["Ingress","Egress"]}}
+    creationTimestamp: "2026-09-13T08:46:16Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/part-of: kubesentinel
+      kubesentinel.io/policy: edge-api-traffic
+    name: edge-api-policy
+    namespace: edge-mumbai
+    resourceVersion: "1917"
+    uid: 9172566d-3c6d-4bc6-8594-77c7794d19c3
+  spec:
+    egress:
+    - ports:
+      - port: 6379
+        protocol: TCP
+      to:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: kubesentinel-system
+        podSelector:
+          matchLabels:
+            app: redis
+    ingress:
+    - from:
+      - podSelector: {}
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: kubesentinel-system
+      ports:
+      - port: 8000
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app: edge-api
+    policyTypes:
+    - Ingress
+    - Egress
+kind: List
+metadata:
+  resourceVersion: ""
+
+
+=== POLICIES IN edge-bangalore ===
+apiVersion: v1
+items:
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{},"labels":{"app.kubernetes.io/part-of":"kubesentinel","kubesentinel.io/policy":"allow-dns"},"name":"allow-dns-egress","namespace":"edge-bangalore"},"spec":{"egress":[{"ports":[{"port":53,"protocol":"UDP"},{"port":53,"protocol":"TCP"}],"to":[{"namespaceSelector":{"matchLabels":{"kubernetes.io/metadata.name":"kube-system"}},"podSelector":{"matchLabels":{"k8s-app":"kube-dns"}}}]}],"podSelector":{},"policyTypes":["Egress"]}}
+    creationTimestamp: "2026-09-13T08:46:14Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/part-of: kubesentinel
+      kubesentinel.io/policy: allow-dns
+    name: allow-dns-egress
+    namespace: edge-bangalore
+    resourceVersion: "1911"
+    uid: b2bd1988-351b-49b5-9f88-eec4b879ac89
+  spec:
+    egress:
+    - ports:
+      - port: 53
+        protocol: UDP
+      - port: 53
+        protocol: TCP
+      to:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: kube-system
+        podSelector:
+          matchLabels:
+            k8s-app: kube-dns
+    podSelector: {}
+    policyTypes:
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{},"labels":{"app.kubernetes.io/part-of":"kubesentinel","kubesentinel.io/policy":"default-deny"},"name":"default-deny-all","namespace":"edge-bangalore"},"spec":{"podSelector":{},"policyTypes":["Ingress","Egress"]}}
+    creationTimestamp: "2026-09-13T08:46:15Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/part-of: kubesentinel
+      kubesentinel.io/policy: default-deny
+    name: default-deny-all
+    namespace: edge-bangalore
+    resourceVersion: "1915"
+    uid: 223e9d41-6ca5-4b18-9c71-239a5c6263a5
+  spec:
+    podSelector: {}
+    policyTypes:
+    - Ingress
+    - Egress
+- apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{},"labels":{"app.kubernetes.io/part-of":"kubesentinel","kubesentinel.io/policy":"edge-api-traffic"},"name":"edge-api-policy","namespace":"edge-bangalore"},"spec":{"egress":[{"ports":[{"port":6379,"protocol":"TCP"}],"to":[{"namespaceSelector":{"matchLabels":{"kubernetes.io/metadata.name":"kubesentinel-system"}},"podSelector":{"matchLabels":{"app":"redis"}}}]}],"ingress":[{"from":[{"podSelector":{}},{"namespaceSelector":{"matchLabels":{"kubernetes.io/metadata.name":"kubesentinel-system"}}}],"ports":[{"port":8000,"protocol":"TCP"}]}],"podSelector":{"matchLabels":{"app":"edge-api"}},"policyTypes":["Ingress","Egress"]}}
+    creationTimestamp: "2026-09-13T08:46:16Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/part-of: kubesentinel
+      kubesentinel.io/policy: edge-api-traffic
+    name: edge-api-policy
+    namespace: edge-bangalore
+    resourceVersion: "1918"
+    uid: 4ec911d3-21bf-4709-89b2-edf555d9f69c
+  spec:
+    egress:
+    - ports:
+      - port: 6379
+        protocol: TCP
+      to:
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: kubesentinel-system
+        podSelector:
+          matchLabels:
+            app: redis
+    ingress:
+    - from:
+      - podSelector: {}
+      - namespaceSelector:
+          matchLabels:
+            kubernetes.io/metadata.name: kubesentinel-system
+      ports:
+      - port: 8000
+        protocol: TCP
+    podSelector:
+      matchLabels:
+        app: edge-api
+    policyTypes:
+    - Ingress
+    - Egress
+kind: List
+metadata:
+  resourceVersion: ""

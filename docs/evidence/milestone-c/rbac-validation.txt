@@ -1,0 +1,24 @@
+=== SA edge-pune/edge-api-sa ===
+automountServiceAccountToken: false
+can-i list pods: no
+can-i get secrets: no
+
+=== SA edge-mumbai/edge-api-sa ===
+automountServiceAccountToken: false
+can-i list pods: no
+can-i get secrets: no
+
+=== SA edge-bangalore/edge-api-sa ===
+automountServiceAccountToken: false
+can-i list pods: no
+can-i get secrets: no
+
+=== SA kubesentinel-system/edge-worker-sa ===
+automountServiceAccountToken: false
+can-i list pods: no
+can-i get secrets: no
+
+=== SA kubesentinel-system/redis-sa ===
+automountServiceAccountToken: false
+can-i list pods: no
+can-i get secrets: no

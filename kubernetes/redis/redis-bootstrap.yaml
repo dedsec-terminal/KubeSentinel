@@ -1,0 +1,67 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: redis-bootstrap
+  namespace: kubesentinel-system
+  labels:
+    app: redis-bootstrap
+spec:
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        app: redis-bootstrap
+    spec:
+      serviceAccountName: redis-sa
+      restartPolicy: OnFailure
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: redis-bootstrap
+          image: redis:7.4.2-alpine
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10001
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+            seccompProfile:
+              type: RuntimeDefault
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 50m
+              memory: 64Mi
+          env:
+            - name: REDIS_BOOTSTRAP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-auth-secret
+                  key: REDIS_BOOTSTRAP_PASSWORD
+          command:
+            - /bin/sh
+            - -c
+            - |
+              until redis-cli -h redis.kubesentinel-system.svc.cluster.local -p 6379 ping; do
+                echo "Waiting for Redis to become available..."
+                sleep 1
+              done
+              echo "Creating consumer group edge-workers via bootstrap identity..."
+              redis-cli -h redis.kubesentinel-system.svc.cluster.local -p 6379 --user bootstrap -a "$REDIS_BOOTSTRAP_PASSWORD" XGROUP CREATE security-events edge-workers $ MKSTREAM || true
+              echo "Consumer group edge-workers successfully verified."
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
