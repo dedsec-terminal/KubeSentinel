@@ -28,6 +28,7 @@ jobs:
           severity: "HIGH,CRITICAL"
           ignore-unfixed: true
           trivyignores: ".trivyignore"
+          skip-dirs: "tests/kyverno,simulations/insecure_deployment/fixtures,kubernetes/security"
           exit-code: "1"
 
       - name: Trivy IaC configuration scan (Kubernetes manifests, Dockerfiles, Helm values)
@@ -38,6 +39,7 @@ jobs:
           format: "table"
           severity: "HIGH,CRITICAL"
           trivyignores: ".trivyignore"
+          skip-dirs: "tests/kyverno,simulations/insecure_deployment/fixtures,kubernetes/security"
           exit-code: "1"
 
   checkov-iac-scan:

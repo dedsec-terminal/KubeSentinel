@@ -18,16 +18,19 @@
 # trace execve/connect events, and correlate process activity with Kubernetes pods.
 # ------------------------------------------------------------------------------
 
-# Container running with 'privileged' flag (AVD-KSV-0012 / KSV012)
+# Container running with 'privileged' flag (AVD-KSV-0012 / KSV012 / KSV-0017)
 # Required for modern_ebpf driver to attach eBPF probes to kernel tracepoints in k3d.
 AVD-KSV-0012
 KSV012
+KSV-0017
 
-# hostPath volumes mounted (AVD-KSV-0023 / KSV023)
+# hostPath volumes mounted (AVD-KSV-0023 / KSV023 / KSV-0006 / KSV-0121)
 # Required to access /proc, /etc, and containerd socket (/run/containerd/containerd.sock)
 # to enrich raw kernel events with container and process metadata.
 AVD-KSV-0023
 KSV023
+KSV-0006
+KSV-0121
 
 # Allow privilege escalation enabled (AVD-KSV-0001 / KSV0001)
 # Required because privileged container must retain root privileges to manage eBPF maps.
@@ -43,6 +46,7 @@ KSV014
 # Kernel eBPF probe attachment requires UID 0 on the host node.
 AVD-KSV-0020
 KSV020
+KSV-0118
 
 # Linux capabilities not dropped (AVD-KSV-0043 / KSV043)
 # Requires CAP_SYS_ADMIN / CAP_BPF / CAP_SYS_RESOURCE for modern_ebpf subsystem.

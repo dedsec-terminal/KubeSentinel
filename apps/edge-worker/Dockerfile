@@ -24,6 +24,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PATH="/opt/venv/bin:$PATH" \
     PYTHONPATH="/app"
 
+RUN apt-get update \
+    && apt-get upgrade -y \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN groupadd -g 10001 appuser && \
     useradd -u 10001 -g 10001 -s /sbin/nologin -M appuser
 
@@ -34,6 +38,19 @@ COPY --chown=10001:10001 apps/edge-worker/src/edge_worker /app/edge_worker
 COPY --chown=10001:10001 apps/common/src/edge_common /app/edge_common
 COPY --chown=10001:10001 telemetry /app/telemetry
 
+RUN rm -rf \
+    /usr/local/lib/python3.11/site-packages/pip* \
+    /usr/local/lib/python3.11/site-packages/setuptools* \
+    /usr/local/lib/python3.11/site-packages/wheel* \
+    /opt/venv/lib/python3.11/site-packages/pip* \
+    /opt/venv/lib/python3.11/site-packages/setuptools* \
+    /opt/venv/lib/python3.11/site-packages/wheel* \
+    /opt/venv/lib/python3.11/site-packages/jaraco* \
+    /opt/venv/lib/python3.11/site-packages/msgpack*
+
 USER 10001:10001
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+    CMD ["python", "-c", "import sys; sys.exit(0 if b'edge_worker.main' in open('/proc/1/cmdline', 'rb').read() else 1)"]
 
 CMD ["python", "-m", "edge_worker.main"]

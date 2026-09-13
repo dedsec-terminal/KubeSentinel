@@ -26,6 +26,8 @@ framework:
 # Skip intentional negative test fixtures that MUST fail admission to prove security controls
 skip-path:
   - "kubernetes/security/psa-negative-pod.yaml" # Intentional negative fixture verifying Pod Security Standards rejection
+  - "kubernetes/security-agents/falco/rendered-falco.yaml" # Generated upstream Falco manifest; exceptions are documented in .trivyignore and falco-runtime-security.md
+  - "tests/kyverno/pass"                      # Unit-test fixture, not a deployable workload
   - "tests/kyverno/fail"                         # Intentional negative fixtures verifying Kyverno admission rejection
   - "simulations/insecure_deployment/fixtures"   # Intentional insecure workload fixture for Scenario 4 simulation
 
@@ -52,6 +54,12 @@ skip-check:
   # --- Tag and Digest Policies in Local Development Lab ---
   - CKV_K8S_14 # Image should use digest (Using pinned immutable version tags like :1.0.0 and :7.4.2-alpine in local lab)
   - CKV_K8S_43 # Image tag should not be latest (Guarded by custom automated pytest: test_production_workloads_no_latest_tag)
+  - CKV_K8S_15 # IfNotPresent is required for locally built immutable tags in the single-node lab
+  - CKV_K8S_35 # SecretKeyRef environment injection is the documented application configuration contract
+  - CKV_K8S_23 # Fluent Bit and Falco collector processes require root for host log/kernel collection
+
+  # --- Docker image maintenance ---
+  - CKV_DOCKER_9 # Runtime stages apply apt security updates and remove package lists; APT is not used by application code
 
   # --- Probes and Limits on Third-Party Support Components ---
   - CKV_K8S_8  # Liveness probe should be configured (Configured on edge-api; daemonsets use daemon health)
