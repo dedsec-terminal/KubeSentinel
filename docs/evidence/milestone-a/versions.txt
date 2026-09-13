@@ -1,0 +1,51 @@
+Observed: 2026-09-13T01:48:46+05:30
+
+Python: 3.14.2
+Global pip: 26.1.2
+Project virtual-environment pip: 25.3
+Git: 2.47.1.windows.2
+kubectl: v1.36.1
+k3d: v5.9.0
+k3d default k3s: v1.35.5-k3s1
+k3d binary SHA-256: 49D0B9C796F5B8BA6F58A1DD5469E8B7B34BF9B6CE9078633EEDB2789680A034
+Helm: missing (deferred)
+kind: missing (not selected)
+Make: missing (optional)
+
+Project virtual-environment direct packages:
+fastapi=0.141.1
+uvicorn=0.52.4
+pytest=9.1.1
+httpx=0.28.1
+ruff=0.16.7
+
+Complete project virtual-environment inventory:
+- pip=25.3 (bootstrapped by `python -m venv .venv`)
+- kubesentinel-edge-api=0.1.0 (editable project install)
+- annotated-doc=0.0.5
+- annotated-types=0.8.0
+- anyio=4.15.1
+- certifi=2026.7.22
+- click=8.5.0
+- colorama=0.4.6
+- fastapi=0.141.1
+- h11=0.16.0
+- httpcore=1.0.9
+- httpx=0.28.1
+- idna=3.19
+- iniconfig=2.3.0
+- packaging=26.3
+- pluggy=1.6.0
+- pydantic=2.13.5
+- pydantic-core=2.46.5
+- Pygments=2.21.0
+- pytest=9.1.1
+- ruff=0.16.7
+- starlette=1.6.0
+- typing-extensions=4.16.0
+- typing-inspection=0.4.4
+- uvicorn=0.52.4
+
+The editable project and every inventory entry other than pip were resolved and
+installed into `.venv` by:
+`.\.venv\Scripts\python.exe -m pip install -e ".[dev]"`

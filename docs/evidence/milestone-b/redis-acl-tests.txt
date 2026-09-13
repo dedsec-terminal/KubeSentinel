@@ -1,0 +1,20 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.14.2, pytest-9.1.1, pluggy-1.6.0 -- D:\KubeSentinel\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: D:\KubeSentinel
+configfile: pyproject.toml
+plugins: anyio-4.15.1
+collecting ... collected 10 items
+
+tests/integration/test_redis_acl.py::test_default_user_is_disabled PASSED [ 10%]
+tests/integration/test_redis_acl.py::test_invalid_credentials_rejected PASSED [ 20%]
+tests/integration/test_redis_acl.py::test_producer_allowed_ping_and_xadd_on_security_events PASSED [ 30%]
+tests/integration/test_redis_acl.py::test_producer_denied_xreadgroup PASSED [ 40%]
+tests/integration/test_redis_acl.py::test_producer_denied_other_keys PASSED [ 50%]
+tests/integration/test_redis_acl.py::test_producer_denied_admin_commands PASSED [ 60%]
+tests/integration/test_redis_acl.py::test_bootstrap_creates_consumer_group PASSED [ 70%]
+tests/integration/test_redis_acl.py::test_consumer_allowed_ping_xreadgroup_and_xack PASSED [ 80%]
+tests/integration/test_redis_acl.py::test_consumer_denied_xadd PASSED    [ 90%]
+tests/integration/test_redis_acl.py::test_consumer_denied_admin_commands PASSED [100%]
+
+============================= 10 passed in 10.43s =============================

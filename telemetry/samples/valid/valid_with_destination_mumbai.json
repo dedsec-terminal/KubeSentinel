@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "timestamp": "2026-09-13T02:21:00Z",
+  "event_id": "a0000000-0000-4000-8000-000000000002",
+  "edge_site": "mumbai",
+  "namespace": "local-compose",
+  "service": "edge-api",
+  "event_type": "authentication_attempt",
+  "severity": "medium",
+  "source": "client-auth-gateway",
+  "destination": "10.0.2.15:8443",
+  "message": "Mutual TLS handshake negotiation completed with client cert",
+  "metadata": {
+    "tls_version": "TLSv1.3",
+    "cipher_suite": "TLS_AES_256_GCM_SHA384"
+  }
+}

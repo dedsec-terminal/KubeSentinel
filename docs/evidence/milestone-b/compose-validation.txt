@@ -1,0 +1,167 @@
+=== Docker Compose Config Validation ===
+name: kubesentinel
+services:
+  edge-api:
+    build:
+      context: D:\KubeSentinel
+      dockerfile: apps/edge-api/Dockerfile
+    cap_drop:
+      - ALL
+    depends_on:
+      redis:
+        condition: service_healthy
+        required: true
+      redis-bootstrap:
+        condition: service_completed_successfully
+        required: true
+    environment:
+      EDGE_SITE: pune
+      NAMESPACE: local-compose
+      REDIS_BOOTSTRAP_PASSWORD: [REDACTED]
+      REDIS_CONSUMER_GROUP: edge-workers
+      REDIS_CONSUMER_PASSWORD: [REDACTED]
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_PRODUCER_PASSWORD: [REDACTED]
+      REDIS_STREAM: security-events
+      SERVICE: edge-api
+    networks:
+      kubesentinel-net: null
+    ports:
+      - mode: ingress
+        target: 8000
+        published: "8000"
+        protocol: tcp
+    read_only: true
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+  edge-worker:
+    build:
+      context: D:\KubeSentinel
+      dockerfile: apps/edge-worker/Dockerfile
+    cap_drop:
+      - ALL
+    depends_on:
+      redis:
+        condition: service_healthy
+        required: true
+      redis-bootstrap:
+        condition: service_completed_successfully
+        required: true
+    environment:
+      EDGE_SITE: pune
+      NAMESPACE: local-compose
+      REDIS_BOOTSTRAP_PASSWORD: [REDACTED]
+      REDIS_CONSUMER_GROUP: edge-workers
+      REDIS_CONSUMER_PASSWORD: [REDACTED]
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_PRODUCER_PASSWORD: [REDACTED]
+      REDIS_STREAM: security-events
+      SERVICE: edge-api
+    networks:
+      kubesentinel-net: null
+    read_only: true
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+  redis:
+    cap_drop:
+      - ALL
+    command:
+      - redis-server
+      - /etc/redis/redis.conf
+    environment:
+      EDGE_SITE: pune
+      NAMESPACE: local-compose
+      REDIS_BOOTSTRAP_PASSWORD: [REDACTED]
+      REDIS_CONSUMER_GROUP: edge-workers
+      REDIS_CONSUMER_PASSWORD: [REDACTED]
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_PRODUCER_PASSWORD: [REDACTED]
+      REDIS_STREAM: security-events
+      SERVICE: edge-api
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - redis-cli --no-a [REDACTED] ...
+          ping | grep -q PONG || exit 1
+      timeout: 2s
+      interval: 2s
+      retries: 5
+    image: redis:7.4.2-alpine
+    networks:
+      kubesentinel-net: null
+    read_only: true
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m
+    user: 999:1000
+    volumes:
+      - type: bind
+        source: D:\KubeSentinel\deploy\compose\redis\redis.conf
+        target: /etc/redis/redis.conf
+        read_only: true
+        bind: {}
+      - type: bind
+        source: D:\KubeSentinel\deploy\compose\redis\users.acl
+        target: /etc/redis/users.acl
+        read_only: true
+        bind: {}
+  redis-bootstrap:
+    cap_drop:
+      - ALL
+    command:
+      - redis-cli -h redis -p 6379 --no-a [REDACTED] ...
+        XGROUP CREATE security-events edge-workers '$$' MKSTREAM || true
+    depends_on:
+      redis:
+        condition: service_healthy
+        required: true
+    entrypoint:
+      - sh
+      - -c
+    environment:
+      EDGE_SITE: pune
+      NAMESPACE: local-compose
+      REDIS_BOOTSTRAP_PASSWORD: [REDACTED]
+      REDIS_CONSUMER_GROUP: edge-workers
+      REDIS_CONSUMER_PASSWORD: [REDACTED]
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      REDIS_PRODUCER_PASSWORD: [REDACTED]
+      REDIS_STREAM: security-events
+      SERVICE: edge-api
+    image: redis:7.4.2-alpine
+    networks:
+      kubesentinel-net: null
+    read_only: true
+    restart: 'no'
+    security_opt:
+      - no-new-privileges:true
+    user: 999:1000
+networks:
+  kubesentinel-net:
+    name: kubesentinel_kubesentinel-net
+    driver: bridge
+
+=== Container Status (docker compose ps -a) ===
+NAME                             IMAGE                      COMMAND                  SERVICE           CREATED          STATUS                      PORTS
+kubesentinel-edge-api-1          kubesentinel-edge-api      "uvicorn edge_api.maâ€¦"   edge-api          35 seconds ago   Up 30 seconds               0.0.0.0:8000->8000/tcp, [::]:8000->8000/tcp
+kubesentinel-edge-worker-1       kubesentinel-edge-worker   "python -m edge_workâ€¦"   edge-worker       35 seconds ago   Up 30 seconds               
+kubesentinel-redis-1             redis:7.4.2-alpine         "docker-entrypoint.sâ€¦"   redis             36 seconds ago   Up 34 seconds (healthy)     6379/tcp
+kubesentinel-redis-bootstrap-1   redis:7.4.2-alpine         "sh -c 'redis-cli -hâ€¦"   redis-bootstrap   36 seconds ago   Exited (0) 31 seconds ago
+
+=== Container Security Options (Hardening Verification) ===
+Service: redis | User: 999:1000 | ReadOnly: true | CapDrop: [ALL] | SecurityOpt: [no-new-privileges:true]
+Service: redis-bootstrap | User: 999:1000 | ReadOnly: true | CapDrop: [ALL] | SecurityOpt: [no-new-privileges:true]
+Service: edge-api | User: 10001:10001 | ReadOnly: true | CapDrop: [ALL] | SecurityOpt: [no-new-privileges:true]
+Service: edge-worker | User: 10001:10001 | ReadOnly: true | CapDrop: [ALL] | SecurityOpt: [no-new-privileges:true]

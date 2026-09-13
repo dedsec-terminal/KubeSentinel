@@ -1,0 +1,26 @@
+﻿[smoke] Stack is not currently ready. Bringing up Compose stack...
+[compose-up] Executing: docker compose up -d
+[compose-up] Polling services readiness (timeout: 30s)...
+[compose-up] Compose stack is up and operational:
+  - redis:           Up (healthy, internal stream: security-events)
+  - redis-bootstrap: Completed (consumer group edge-workers initialized)
+  - edge-api:        Up (ready on port 8000)
+  - edge-worker:     Up (active consumer group: edge-workers)
+[smoke] Sending HTTP POST to http://127.0.0.1:8000/events...
+[smoke] Received HTTP 202 Accepted -> event_id=3e020aee-3adb-404f-9fa9-9b52a53447fd, stream=security-events, stream_id=1789280880839-0
+[smoke] Polling edge-worker container logs for stream_id=1789280880839-0...
+[smoke] Worker structured JSON log verified (status: success).
+[smoke] Inspecting Redis PEL for consumer group edge-workers...
+[smoke] Redis XACK verified: 0 pending entries in PEL.
+
+======================================================================
+KubeSentinel Milestone B Smoke Verification -- Trace Summary
+======================================================================
+[1] HTTP POST Ingest:       HTTP 202 Accepted -> event_id=3e020aee-3adb-404f-9fa9-9b52a53447fd
+[2] Redis Streams Delivery:  Stream=security-events, stream_id=1789280880839-0
+[3] Worker JSON Log:        Worker=worker-7a57ed4d3fb0-43e9fb, status=success
+    Message:                Milestone B deterministic smoke test a7421d57-62df-4815-b239-f1136910d66f
+[4] Redis XACK Verified:    0 pending entries (PEL cleared)
+======================================================================
+Milestone B deterministic end-to-end smoke verification PASSED.
+

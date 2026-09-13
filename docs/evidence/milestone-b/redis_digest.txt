@@ -1,0 +1,11 @@
+# Verified Redis Image Specification — Milestone B
+Image: redis:7.4.2-alpine
+Version: 7.4.2
+Architecture: amd64
+OS: linux
+Image ID: sha256:02419de7eddf55aa5bcf49efb74e88fa8d931b4d77c07eff8a6b2144472b6952
+Resolved RepoDigest: redis@sha256:02419de7eddf55aa5bcf49efb74e88fa8d931b4d77c07eff8a6b2144472b6952
+Descriptor Digest: sha256:02419de7eddf55aa5bcf49efb74e88fa8d931b4d77c07eff8a6b2144472b6952
+Verification Timestamp: 2026-09-13T06:30:50Z
+Verification Command: docker inspect redis:7.4.2-alpine
+Status: VERIFIED_OFFICIAL_PATCH_LEVEL

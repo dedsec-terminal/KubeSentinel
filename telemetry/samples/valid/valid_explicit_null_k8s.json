@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "timestamp": "2026-09-13T02:23:45Z",
+  "event_id": "a0000000-0000-4000-8000-000000000004",
+  "edge_site": "pune",
+  "namespace": "local-compose",
+  "service": "edge-api",
+  "event_type": "audit_probe",
+  "severity": "info",
+  "source": "health-checker",
+  "destination": null,
+  "message": "Routine container environment capability audit",
+  "metadata": {
+    "read_only_rootfs": true,
+    "cap_drop": ["ALL"]
+  },
+  "pod": null,
+  "container": null,
+  "node": null
+}

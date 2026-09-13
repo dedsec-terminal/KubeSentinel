@@ -1,0 +1,47 @@
+Command: git status --short --branch --untracked-files=all
+
+## No commits yet on main
+?? .editorconfig
+?? .gitignore
+?? LICENSE
+?? Makefile
+?? README.md
+?? SECURITY.md
+?? apps/edge-api/.dockerignore
+?? apps/edge-api/src/edge_api/__init__.py
+?? apps/edge-api/src/edge_api/main.py
+?? docs/architecture.md
+?? docs/decisions/0001-local-cluster.md
+?? docs/demo-guide.md
+?? docs/detection-engineering.md
+?? docs/environment.md
+?? docs/evidence/milestone-a/.gitkeep
+?? docs/evidence/milestone-a/commands.md
+?? docs/evidence/milestone-a/environment.txt
+?? docs/evidence/milestone-a/git-status.txt
+?? docs/evidence/milestone-a/lint.txt
+?? docs/evidence/milestone-a/tests.txt
+?? docs/evidence/milestone-a/versions.txt
+?? docs/security-model.md
+?? docs/threat-model.md
+?? pyproject.toml
+?? scripts/__init__.py
+?? scripts/kubesentinel.py
+?? scripts/validate/__init__.py
+?? scripts/validate/doctor.py
+?? tests/edge_api/test_main.py
+?? tests/validate/__init__.py
+?? tests/validate/test_cli.py
+?? tests/validate/test_doctor.py
+
+Command: git remote
+Result: none
+
+Command: git rev-parse --verify HEAD
+Result: none (no commits)
+
+Command: git branch --show-current
+Result: main
+
+Command: k3d cluster list --no-headers
+Result: none (no clusters)

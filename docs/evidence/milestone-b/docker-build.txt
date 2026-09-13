@@ -1,0 +1,147 @@
+=== Docker Build: Edge-API Image (apps/edge-api/Dockerfile) ===
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.13kB 0.0s done
+#1 DONE 0.1s
+
+#2 [internal] load metadata for docker.io/library/python:3.11-slim
+#2 DONE 0.1s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 131B 0.0s done
+#3 DONE 0.0s
+
+#4 [internal] load build context
+#4 transferring context: 23.34kB 0.0s done
+#4 DONE 0.1s
+
+#5 [builder 1/8] FROM docker.io/library/python:3.11-slim@sha256:9534e5a8e315485d4061ed659af0fd78a284c015f9b73661b41d6bab25604534
+#5 resolve docker.io/library/python:3.11-slim@sha256:9534e5a8e315485d4061ed659af0fd78a284c015f9b73661b41d6bab25604534 0.1s done
+#5 DONE 0.1s
+
+#6 [builder 6/8] RUN pip install --no-cache-dir -r /build/requirements.txt
+#6 CACHED
+
+#7 [builder 7/8] COPY apps/common /build/common
+#7 CACHED
+
+#8 [runtime 2/7] RUN groupadd -g 10001 appuser &&     useradd -u 10001 -g 10001 -s /sbin/nologin -M appuser
+#8 CACHED
+
+#9 [builder 4/8] WORKDIR /build
+#9 CACHED
+
+#10 [builder 8/8] RUN pip install --no-cache-dir /build/common
+#10 CACHED
+
+#11 [builder 2/8] RUN python -m venv /opt/venv
+#11 CACHED
+
+#12 [runtime 3/7] WORKDIR /app
+#12 CACHED
+
+#13 [builder 3/8] RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+#13 CACHED
+
+#14 [builder 5/8] COPY apps/edge-api/requirements.txt /build/requirements.txt
+#14 CACHED
+
+#15 [runtime 4/7] COPY --from=builder /opt/venv /opt/venv
+#15 CACHED
+
+#16 [runtime 5/7] COPY --chown=10001:10001 apps/edge-api/src/edge_api /app/edge_api
+#16 DONE 0.1s
+
+#17 [runtime 6/7] COPY --chown=10001:10001 apps/common/src/edge_common /app/edge_common
+#17 DONE 0.2s
+
+#18 [runtime 7/7] COPY --chown=10001:10001 telemetry /app/telemetry
+#18 DONE 0.2s
+
+#19 exporting to image
+#19 exporting layers
+#19 exporting layers 0.6s done
+#19 exporting manifest sha256:b0d2bd26fbaf49f7ac6a07d8c231b2eb7a50d08e0bbfe7b26f82d56e85e2aace 0.1s done
+#19 exporting config sha256:bdc481ba5a396e4a623c0a9e17143d3380d494f149e62dd609c4f2d64fad7839 0.1s done
+#19 exporting attestation manifest sha256:a3de9814798f71b4f346e895cf72cd6b0e3056ad596c7401bcfea530d9ab2527 0.1s done
+#19 exporting manifest list sha256:28b20263d56a47cbcd6ae1b60256061df74a98184375ea5f6b8a46e89566f17c
+#19 exporting manifest list sha256:28b20263d56a47cbcd6ae1b60256061df74a98184375ea5f6b8a46e89566f17c 0.1s done
+#19 naming to docker.io/library/kubesentinel-edge-api:0.2.0 done
+#19 unpacking to docker.io/library/kubesentinel-edge-api:0.2.0
+#19 unpacking to docker.io/library/kubesentinel-edge-api:0.2.0 0.2s done
+#19 DONE 1.2s
+
+=== Docker Build: Edge-Worker Image (apps/edge-worker/Dockerfile) ===
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 1.09kB 0.0s done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/python:3.11-slim
+#2 DONE 0.1s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 131B 0.0s done
+#3 DONE 0.0s
+
+#4 [internal] load build context
+#4 transferring context: 41.83kB 0.0s done
+#4 DONE 0.1s
+
+#5 [builder 1/8] FROM docker.io/library/python:3.11-slim@sha256:9534e5a8e315485d4061ed659af0fd78a284c015f9b73661b41d6bab25604534
+#5 resolve docker.io/library/python:3.11-slim@sha256:9534e5a8e315485d4061ed659af0fd78a284c015f9b73661b41d6bab25604534 0.1s done
+#5 DONE 0.1s
+
+#6 [builder 6/8] RUN pip install --no-cache-dir -r /build/requirements.txt
+#6 CACHED
+
+#7 [runtime 2/7] RUN groupadd -g 10001 appuser &&     useradd -u 10001 -g 10001 -s /sbin/nologin -M appuser
+#7 CACHED
+
+#8 [runtime 3/7] WORKDIR /app
+#8 CACHED
+
+#9 [builder 2/8] RUN python -m venv /opt/venv
+#9 CACHED
+
+#10 [builder 4/8] WORKDIR /build
+#10 CACHED
+
+#11 [builder 8/8] RUN pip install --no-cache-dir /build/common
+#11 CACHED
+
+#12 [builder 3/8] RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+#12 CACHED
+
+#13 [builder 7/8] COPY apps/common /build/common
+#13 CACHED
+
+#14 [builder 5/8] COPY apps/edge-worker/requirements.txt /build/requirements.txt
+#14 CACHED
+
+#15 [runtime 4/7] COPY --from=builder /opt/venv /opt/venv
+#15 CACHED
+
+#16 [runtime 5/7] COPY --chown=10001:10001 apps/edge-worker/src/edge_worker /app/edge_worker
+#16 DONE 0.1s
+
+#17 [runtime 6/7] COPY --chown=10001:10001 apps/common/src/edge_common /app/edge_common
+#17 DONE 0.1s
+
+#18 [runtime 7/7] COPY --chown=10001:10001 telemetry /app/telemetry
+#18 DONE 0.2s
+
+#19 exporting to image
+#19 exporting layers
+#19 exporting layers 0.5s done
+#19 exporting manifest sha256:fb6bd040e7815c1542cffa6819c50664565f4965b8b7865a4e9bedf1fa62eda8 0.1s done
+#19 exporting config sha256:22c8521d22b2fab0db7eb841e7fe01f1f1ed8ac8cb29378bfa119facf1455de8 0.1s done
+#19 exporting attestation manifest sha256:c1f6da690f5984a85d9b12072e36fdf9e7569155f90990f9a7fe0bd11a2efaf9 0.1s done
+#19 exporting manifest list sha256:4b76d0453abb70b5e50798423d0f86e0f9d9b085bc3de452d026211a7bda1a5b
+#19 exporting manifest list sha256:4b76d0453abb70b5e50798423d0f86e0f9d9b085bc3de452d026211a7bda1a5b 0.1s done
+#19 naming to docker.io/library/kubesentinel-edge-worker:0.2.0 done
+#19 unpacking to docker.io/library/kubesentinel-edge-worker:0.2.0
+#19 unpacking to docker.io/library/kubesentinel-edge-worker:0.2.0 0.3s done
+#19 DONE 1.2s

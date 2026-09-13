@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "timestamp": "2026-09-13T02:20:00Z",
+  "event_id": "b0000000-0000-4000-8000-000000000010",
+  "edge_site": "pune",
+  "namespace": "local-compose",
+  "service": "edge-api",
+  "event_type": "service_request",
+  "severity": "info",
+  "source": "192.168.1.100",
+  "destination": null,
+  "message": "Fake Kubernetes pod name string provided instead of null or omitted",
+  "metadata": {},
+  "pod": "edge-api-deployment-684f-xyz"
+}

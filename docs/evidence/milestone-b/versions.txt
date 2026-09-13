@@ -1,0 +1,68 @@
+=== Host & Tool Versions ===
+git version 2.47.1.windows.2
+Client:
+ Version:           29.7.2
+ API version:       1.55
+ Go version:        go1.26.5
+ Git commit:        a7dcaa6
+ Built:             Wed Aug  5 18:31:33 2026
+ OS/Arch:           windows/amd64
+ Context:           desktop-linux
+
+Server: Docker Desktop 4.90.0 (238679)
+ Engine:
+  Version:          29.7.2
+  API version:      1.55 (minimum version 1.40)
+  Go version:       go1.26.5
+  Git commit:       6a43e3d
+  Built:            Wed Aug  5 18:28:36 2026
+  OS/Arch:          linux/amd64
+  Experimental:     false
+ containerd:
+  Version:          v2.3.3
+  GitCommit:        aad11006b869517fcd3009450b6f82da282e1a9b
+ runc:
+  Version:          1.4.3
+  GitCommit:        v1.4.3-0-gbb14dabe
+ docker-init:
+  Version:          0.19.0
+  GitCommit:        de40ad0
+Docker Compose version v5.5.1
+Python 3.14.2
+pytest 9.1.1
+ruff 0.16.7
+
+=== Python Virtualenv Packages ===
+Package                   Version   Editable project location
+------------------------- --------- -------------------------
+annotated-doc             0.0.5
+annotated-types           0.8.0
+anyio                     4.15.1
+attrs                     26.1.0
+certifi                   2026.7.22
+click                     8.5.0
+colorama                  0.4.6
+fastapi                   0.141.1
+h11                       0.16.0
+httpcore                  1.0.9
+httpx                     0.28.1
+idna                      3.19
+iniconfig                 2.3.0
+jsonschema                4.26.0
+jsonschema-specifications 2025.9.1
+kubesentinel-edge-api     0.1.0     D:\KubeSentinel
+packaging                 26.3
+pip                       25.3
+pluggy                    1.6.0
+pydantic                  2.13.5
+pydantic_core             2.46.5
+Pygments                  2.21.0
+pytest                    9.1.1
+redis                     8.1.0
+referencing               0.37.0
+rpds-py                   2026.6.3
+ruff                      0.16.7
+starlette                 1.6.0
+typing_extensions         4.16.0
+typing-inspection         0.4.4
+uvicorn                   0.52.4

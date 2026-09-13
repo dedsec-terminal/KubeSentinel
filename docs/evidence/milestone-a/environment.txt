@@ -1,0 +1,16 @@
+Observed: 2026-09-13T01:48:46+05:30
+Repository: D:\KubeSentinel
+Execution: native Windows PowerShell with WSL2 available
+OS: Microsoft Windows 11 Home Single Language 10.0.26200 Build 26200 (64-bit)
+PowerShell: 7.6.1
+WSL: default distribution Ubuntu-24.04; default version 2
+Host RAM: 15.71 GiB total; 2.31 GiB free at capture
+D drive: 337.77 GiB free at capture
+Docker Desktop: 4.90.0.238679
+Docker: client 29.7.2; server 29.7.2; linux/amd64; API 1.55
+Docker backend: docker-desktop; WSL2 kernel; 6 CPUs; 6,213,988,352 bytes memory
+Docker context: desktop-linux
+Kubernetes context: none
+k3d clusters: 0 (expected for Milestone A)
+Occupied target ports: none
+

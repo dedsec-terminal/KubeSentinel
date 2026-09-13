@@ -1,0 +1,95 @@
+services:
+  redis:
+    image: redis:7.4.2-alpine
+    restart: unless-stopped
+    user: "999:1000"
+    command: ["redis-server", "/etc/redis/redis.conf"]
+    volumes:
+      - ./deploy/compose/redis/redis.conf:/etc/redis/redis.conf:ro
+      - ./deploy/compose/redis/users.acl:/etc/redis/users.acl:ro
+    networks:
+      - kubesentinel-net
+    env_file:
+      - .env.local
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli --no-auth-warning --user producer -a \"$$REDIS_PRODUCER_PASSWORD\" ping | grep -q PONG || exit 1"]
+      interval: 2s
+      timeout: 2s
+      retries: 5
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=16m
+
+  redis-bootstrap:
+    image: redis:7.4.2-alpine
+    restart: "no"
+    user: "999:1000"
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - kubesentinel-net
+    env_file:
+      - .env.local
+    entrypoint: ["sh", "-c"]
+    command: >
+      "redis-cli -h redis -p 6379 --no-auth-warning --user bootstrap -a \"$$REDIS_BOOTSTRAP_PASSWORD\" XGROUP CREATE security-events edge-workers '$$' MKSTREAM || true"
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+  edge-api:
+    build:
+      context: .
+      dockerfile: apps/edge-api/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    depends_on:
+      redis:
+        condition: service_healthy
+      redis-bootstrap:
+        condition: service_completed_successfully
+    networks:
+      - kubesentinel-net
+    env_file:
+      - .env.local
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+
+  edge-worker:
+    build:
+      context: .
+      dockerfile: apps/edge-worker/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+      redis-bootstrap:
+        condition: service_completed_successfully
+    networks:
+      - kubesentinel-net
+    env_file:
+      - .env.local
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+
+networks:
+  kubesentinel-net:
+    driver: bridge

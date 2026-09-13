@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kubesentinel.io/schemas/v1/security-event.schema.json",
+  "title": "SecurityEvent",
+  "description": "Canonical KubeSentinel security event contract for edge telemetry",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?(Z|[+-][0-9]{2}:[0-9]{2})$"
+    },
+    "event_id": {
+      "type": "string",
+      "format": "uuid",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+    },
+    "edge_site": {
+      "type": "string",
+      "enum": [
+        "pune",
+        "mumbai",
+        "bangalore"
+      ]
+    },
+    "namespace": {
+      "type": "string",
+      "const": "local-compose"
+    },
+    "service": {
+      "type": "string",
+      "const": "edge-api"
+    },
+    "event_type": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 64,
+      "pattern": "^[a-z0-9]+(_[a-z0-9]+)*$"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "info",
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "destination": {
+      "anyOf": [
+        {
+          "type": "string",
+          "maxLength": 256
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "message": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "pod": {
+      "type": "null"
+    },
+    "container": {
+      "type": "null"
+    },
+    "node": {
+      "type": "null"
+    }
+  },
+  "required": [
+    "schema_version",
+    "timestamp",
+    "event_id",
+    "edge_site",
+    "namespace",
+    "service",
+    "event_type",
+    "severity",
+    "source",
+    "message",
+    "metadata"
+  ],
+  "additionalProperties": false
+}

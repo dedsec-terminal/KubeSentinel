@@ -1,0 +1,4 @@
+Command: .\.venv\Scripts\python.exe scripts\kubesentinel.py lint
+Output: All checks passed!
+Result: PASS (exit 0)
+

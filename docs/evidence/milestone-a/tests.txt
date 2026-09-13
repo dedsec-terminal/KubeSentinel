@@ -1,0 +1,31 @@
+Command: .\.venv\Scripts\python.exe scripts\kubesentinel.py test
+Result: PASS (exit 0)
+Collected: 15 tests
+Passed: 15
+Failed: 0
+Warnings: 0
+Duration: 1.46s
+
+Coverage included:
+- exact GET /health response
+- exact GET /ready response
+- normal FastAPI 404 for an unknown route
+- POST /events is absent and returns 404
+- route inventory contains only /health and /ready (no docs/OpenAPI routes)
+- doctor expected-absence classifications
+- required-tool failure and timeout behavior
+- occupied future port warning behavior
+- supported Python range
+- doctor JSON summary and exit codes
+- canonical CLI doctor and serve routing
+
+Command: .\.venv\Scripts\python.exe -m compileall -q apps scripts tests
+Result: PASS (exit 0)
+
+Command: .\.venv\Scripts\python.exe -c "from edge_api.main import app; print(','.join(sorted(route.path for route in app.routes)))"
+Observed routes: /health,/ready
+Result: PASS (exit 0)
+
+Live-server smoke: not executed. The local process-safety policy rejected the launch
+before a server process started; port 8000 was confirmed closed afterward. ASGI-level
+tests exercised the HTTP application directly.

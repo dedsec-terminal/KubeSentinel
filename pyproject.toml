@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kubesentinel-edge-api"
+version = "0.1.0"
+description = "Minimal Kubernetes Sentinel edge API"
+readme = "README.md"
+requires-python = ">=3.11,<3.15"
+license = "Apache-2.0"
+dependencies = [
+  "fastapi==0.141.1",
+  "uvicorn==0.52.4",
+  "redis==8.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest==9.1.1",
+  "httpx==0.28.1",
+  "ruff==0.16.7",
+  "jsonschema==4.26.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["apps/edge-api/src", "apps/edge-worker/src", "apps/common/src"]
+
+[tool.pytest.ini_options]
+pythonpath = [".", "apps/edge-api/src", "apps/edge-worker/src", "apps/common/src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

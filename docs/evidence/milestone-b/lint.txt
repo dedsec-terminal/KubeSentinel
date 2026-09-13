@@ -1,0 +1,7 @@
+=== Ruff Lint Check ===
+$ python -m ruff check .
+All checks passed!
+
+=== Python Bytecode Compileall ===
+$ python -m compileall -q apps scripts tests telemetry
+Exit Code: 0 (clean bytecode compilation, no syntax errors)

@@ -1,0 +1,11 @@
+.git
+.venv
+.pytest_cache
+.ruff_cache
+.env
+.env.*
+!.env.example
+*.log
+tests/
+.agents/
+docs/

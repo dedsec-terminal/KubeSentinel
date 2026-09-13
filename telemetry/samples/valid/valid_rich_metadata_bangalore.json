@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0",
+  "timestamp": "2026-09-13T02:22:30.123456Z",
+  "event_id": "a0000000-0000-4000-8000-000000000003",
+  "edge_site": "bangalore",
+  "namespace": "local-compose",
+  "service": "edge-api",
+  "event_type": "security_simulation",
+  "severity": "critical",
+  "source": "sim-runner-node-3",
+  "destination": "internal-vault-service",
+  "message": "Simulated unauthorized privilege escalation attempt detected",
+  "metadata": {
+    "network": {
+      "src_ip": "1.2.3.4",
+      "port": 443,
+      "protocol": "tcp"
+    },
+    "rule": {
+      "id": "RULE-101",
+      "action": "alert",
+      "threat_score": 98.5
+    },
+    "tags": ["simulation", "red-team", "milestone-b"]
+  }
+}

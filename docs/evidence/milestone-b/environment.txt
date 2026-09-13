@@ -1,0 +1,51 @@
+=== KubeSentinel Milestone B Environment Ledger ===
+
+=== Doctor Environment Diagnostic Summary ===
+PASS Platform: Windows 11 (10.0.26200) / C:\WINDOWS\system32\cmd.exe
+SKIP WSL context: native host process; not running inside WSL
+PASS WSL2 availability: Default Distribution: Ubuntu-24.04 Default Version: 2 NAME STATE VERSION * Ubuntu-24.04 Stopped 2 docker-desktop Running 2
+PASS Python: Python 3.14.2
+PASS Git: git version 2.47.1.windows.2
+PASS Docker CLI: Docker version 29.7.2, build a7dcaa6
+PASS Docker daemon: 29.7.2
+PASS kubectl: v1.36.1
+WARN Helm: not found
+PASS k3d: k3d version v5.9.0 k3s version v1.35.5-k3s1 (default)
+WARN k3d clusters: none (expected in Milestone A)
+SKIP kind: not selected; k3d is selected
+SKIP Make: optional convenience tool; not installed
+PASS runtime:fastapi: 0.141.1
+PASS runtime:uvicorn: 0.52.4
+WARN Kubernetes context: none (expected in Milestone A)
+WARN Kubernetes cluster: none (expected in Milestone A)
+PASS Host disk: 337.7 GiB free
+PASS Host RAM: 15.7 GiB total / 2.1 GiB free
+PASS Docker resources: 6 CPUs / 6213988352 bytes
+PASS Port 6379: available
+PASS Port 6443: available
+PASS Port 8000: available
+PASS Port 8080: available
+PASS Port 9200: available
+PASS Port 5601: available
+SKIP Redis: deferred beyond Milestone A
+SKIP Elastic: deferred beyond Milestone A
+SKIP Fluent Bit: deferred beyond Milestone A
+SKIP Falco: deferred beyond Milestone A
+SKIP Kyverno: deferred beyond Milestone A
+SUMMARY PASS=19 WARN=4 FAIL=0 SKIP=8
+
+=== Docker Host Daemon Status ===
+Docker Server Version: 29.7.2
+Operating System: Docker Desktop
+Architecture: x86_64
+CPUs: 6
+Total Memory: 6213988352
+Containers: 1 (Running: 1, Stopped: 0)
+
+=== Host Port Exposure Verification (6379 and 8000) ===
+Host Port 6379 (Redis) Listening: WARNING: TCP connect to (2a01:111:2003::52 : 6379) failed
+WARNING: TCP connect to (13.107.4.52 : 6379) failed
+False (Expected: False - Redis is strictly internal to docker network)
+Host Port 8000 (Edge API) Listening when Compose is down: WARNING: TCP connect to (2a01:111:2003::52 : 8000) failed
+WARNING: TCP connect to (13.107.4.52 : 8000) failed
+False (Expected: False - Port is free and closed when stack is down)

@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "timestamp": "2026-09-13T02:24:59+00:00",
+  "event_id": "a0000000-0000-4000-8000-000000000005",
+  "edge_site": "mumbai",
+  "namespace": "local-compose",
+  "service": "edge-api",
+  "event_type": "firewall_drop",
+  "severity": "high",
+  "source": "border-firewall-01",
+  "message": "Inbound TCP SYN packet dropped on port 6379 from untrusted external network",
+  "metadata": {
+    "blocked_ip": "203.0.113.50",
+    "drop_reason": "redis_host_exposure_prevented"
+  }
+}
