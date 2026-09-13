@@ -7,7 +7,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+RUN pip install --no-cache-dir pip==26.2.1 setuptools==84.0.0 wheel==0.46.3
 
 WORKDIR /build
 COPY apps/edge-api/requirements.txt /build/requirements.txt
