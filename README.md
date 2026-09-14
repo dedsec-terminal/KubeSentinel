@@ -16,13 +16,13 @@ KubeSentinel is a local-first cloud-native security engineering lab that deploys
 - **Detection tuning reduced 33 candidates to 25** while retaining 25/25 controlled shell events.
 - **CI and security scanning run automatically** with GitHub Actions, Trivy, Checkov, Hadolint, and SBOM generation.
 
-These are controlled local-lab results, not production performance or detection-rate claims. See the [validation snapshot](#validation), [sanitized evidence](docs/evidence), and [project limitations](#limitations).
+These are controlled local-lab results with deterministic, synthetic measurements. See the [validation snapshot](#validation), [sanitized evidence](docs/evidence), and [project limitations](#limitations).
 
 ## Overview
 
 The lab models three logical edge sites—Pune, Mumbai, and Bangalore—as isolated namespaces in a single-node k3d cluster. Hardened FastAPI services publish security events to an authenticated Redis Stream, a central worker validates and acknowledges those events, and Fluent Bit routes application and Falco runtime telemetry to Elasticsearch for investigation in Kibana.
 
-KubeSentinel combines preventive controls (Pod Security Admission, Kyverno, RBAC, NetworkPolicy, Redis ACLs, and restricted container settings) with detective controls (Falco and Elasticsearch hunting content). It is built to make these ideas easier to set up, test, and learn on one machine. It is not a production deployment blueprint.
+KubeSentinel combines preventive controls (Pod Security Admission, Kyverno, RBAC, NetworkPolicy, Redis ACLs, and restricted container settings) with detective controls (Falco and Elasticsearch hunting content). It is built for repeatable setup, testing, and learning on one machine.
 
 ## Architecture
 
@@ -110,7 +110,7 @@ The repository includes three Elasticsearch rule or hunt definitions:
 - `High-Severity Security Event Triage` is a generic application and stream-processing triage rule. It intentionally has no ATT&CK mapping because severity alone does not establish a technique.
 - `Falco Runtime Security Alerts General Hunt` is a broad multi-behavior hunting query. It intentionally has no single ATT&CK mapping; analysts pivot by Falco rule, namespace, process, and workload.
 
-The final controlled tuning snapshot contained 33 candidate events: 25 controlled shell events and 8 benign maintenance candidates. The tuned query retained 25/25 controlled events, suppressed 8/8 benign candidates, and reduced candidate volume by 24.24%. These are deterministic local-lab measurements, not production detection or false-positive rates. See [the tuning study](docs/detection-tuning/shell-detection.md).
+The final controlled tuning snapshot contained 33 candidate events: 25 controlled shell events and 8 benign maintenance candidates. The tuned query retained 25/25 controlled events, suppressed 8/8 benign candidates, and reduced candidate volume by 24.24%. These are deterministic measurements from the committed local-lab dataset; see [the tuning study](docs/detection-tuning/shell-detection.md).
 
 ## Visual Proof
 
@@ -122,7 +122,7 @@ The public evidence set ties the implementation to three high-signal views: the 
 
 ![Falco runtime alert in Kibana Discover](docs/screenshots/02_kibana_falco_runtime_alert.png)
 
-These captures are sanitized local-lab evidence, not production screenshots or performance claims. The [setup/network troubleshooting guide](docs/troubleshooting.md) covers the repeatable local access paths used to produce the same results.
+These captures are sanitized local-lab evidence, not performance benchmarks. The [setup/network troubleshooting guide](docs/troubleshooting.md) covers the repeatable local access paths used to produce the same results.
 
 ## Technology Stack
 
@@ -245,11 +245,11 @@ KubeSentinel runs locally, so you can set it up and learn without paying for clo
 ## Limitations
 
 - The validated topology is a single-node local k3d cluster; the three edge sites are logical namespaces, not independent regions or clusters.
-- Scenarios and tuning data are controlled synthetic fixtures, so their rates do not generalize to production traffic.
+- Scenarios and tuning data are controlled synthetic fixtures, so their rates describe this local dataset only.
 - Kubernetes audit events, CNI flow/drop events, Redis authentication rejections, and Kyverno PolicyReports are not forwarded to Elasticsearch.
 - Falco requires a narrowly scoped privileged DaemonSet for host-level collection; application workloads remain restricted.
-- Elasticsearch is configured for a resource-constrained lab, not high availability, durable retention, or production scale.
-- The project is an educational security lab and should not be treated as production deployment guidance.
+- Elasticsearch is configured for a resource-constrained lab, not high availability, durable retention, or large-scale operation.
+- The project is an educational security lab for local validation.
 
 ## Documentation
 
