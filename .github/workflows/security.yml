@@ -91,3 +91,38 @@ jobs:
           ignore-unfixed: true
           trivyignores: ".trivyignore"
           exit-code: "1"
+
+  sbom-artifacts:
+    name: Generate SBOM Artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set up Python 3.14
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
+        with:
+          python-version: "3.14"
+          allow-prereleases: true
+
+      - name: Set up Trivy for image SBOM generation
+        uses: aquasecurity/setup-trivy@81e514348e19b6112ce2a7e3ecbafe19c1e1f567 # v0.3.1
+        with:
+          version: v0.74.0
+          cache: true
+
+      - name: Build versioned images and generate CycloneDX SBOMs
+        run: |
+          python scripts/kubesentinel.py sbom --build --tag 1.0.0 --format cyclonedx --output-dir artifacts/sbom/cyclonedx
+
+      - name: Generate SPDX SBOMs from the same images
+        run: |
+          python scripts/kubesentinel.py sbom --tag 1.0.0 --format spdx-json --output-dir artifacts/sbom/spdx
+
+      - name: Upload SBOM artifacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: kubesentinel-sbom-${{ github.sha }}
+          path: artifacts/sbom/
+          if-no-files-found: error
+          retention-days: 30

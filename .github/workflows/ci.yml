@@ -101,7 +101,7 @@ jobs:
         run: |
           python -m pytest tests/unit/test_k8s_manifests.py tests/unit/test_fluentbit_config.py tests/unit/test_es_templates.py tests/unit/test_compose.py -v
 
-      - name: Kyverno policy static and fixture validation without cluster
+      - name: Kyverno policy static validation without cluster
         run: |
           python -m pytest tests/unit/test_k8s_manifests.py -k "test_kyverno" -v
           python -c "

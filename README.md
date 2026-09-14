@@ -127,7 +127,7 @@ All scenarios are synthetic and designed for repeatable validation in the local 
 
 ## DevSecOps / Supply Chain
 
-The [CI workflow](.github/workflows/ci.yml) runs the CI-safe pytest set, Ruff, Python compilation, YAML checks, Kyverno fixtures, Helm validation, and Hadolint. The [security workflow](.github/workflows/security.yml) runs Trivy filesystem, configuration, and image scans, Checkov IaC checks, and SBOM generation with least-privilege `contents: read` permissions. Third-party actions are pinned to immutable commit SHAs.
+The [CI workflow](.github/workflows/ci.yml) runs the CI-safe pytest set, Ruff, Python compilation, YAML checks, Kyverno policy validation, Helm validation, and Hadolint. The [security workflow](.github/workflows/security.yml) runs Trivy filesystem, configuration, and image scans, Checkov IaC checks, and SBOM generation with least-privilege `contents: read` permissions. Third-party actions are pinned to immutable commit SHAs.
 
 `python scripts/kubesentinel.py sbom` generates CycloneDX and SPDX documents plus SHA-256 metadata under the ignored `artifacts/sbom/` directory. The final V1 audit generated 306 components across the two application images; generated SBOMs are reproducible release artifacts rather than committed source files.
 

@@ -100,6 +100,19 @@ def test_security_workflow_scanners_and_images() -> None:
     assert "kubesentinel/edge-worker:1.0.0" in content
 
 
+def test_security_workflow_generates_and_uploads_sboms() -> None:
+    """Verify the security workflow uses the canonical CLI to publish both documented SBOM formats."""
+    content = SECURITY_WORKFLOW.read_text(encoding="utf-8")
+
+    assert "python scripts/kubesentinel.py sbom" in content
+    assert "--build --tag 1.0.0 --format cyclonedx" in content
+    assert "--tag 1.0.0 --format spdx-json" in content
+    assert "actions/upload-artifact@" in content
+    assert "path: artifacts/sbom/" in content
+    assert "if-no-files-found: error" in content
+    assert "docker push" not in content
+
+
 def test_trivyignore_and_checkov_documented_exceptions() -> None:
     """Verify .trivyignore and .checkov.yaml document scoped exceptions for Falco and Fluent Bit."""
     trivy_content = TRIVYIGNORE_FILE.read_text(encoding="utf-8")
