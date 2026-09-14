@@ -94,7 +94,7 @@ log_type:"security_event_processed"
 rule:"Unexpected shell in KubeSentinel edge workload"
 ```
 
-Keep screenshots free of host-specific paths, credentials, tokens, kubeconfigs, and unrelated data. The [screenshot guide](screenshots/README.md) lists safe capture fields.
+Keep any screenshots free of host-specific paths, credentials, tokens, kubeconfigs, and unrelated data. The public evidence captures are linked from the [main README](../README.md).
 
 ## Cleanup
 

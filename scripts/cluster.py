@@ -13,6 +13,89 @@ PINNED_K3S_IMAGE = "rancher/k3s:v1.35.5-k3s1"
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def _image_variants(image: str) -> set[str]:
+    """Return common containerd aliases for a Docker image reference."""
+    variants = {image}
+    if image.startswith("docker.io/"):
+        variants.add(image.removeprefix("docker.io/"))
+    else:
+        variants.add(f"docker.io/{image}")
+    reference = image.split("@", 1)[0]
+    repository, separator, tag = reference.rpartition(":")
+    if separator and "/" not in repository:
+        variants.add(f"docker.io/library/{repository}:{tag}")
+    return variants
+
+
+def _existing_cluster_images(name: str) -> set[str]:
+    """Read image references already loaded in the k3d node, failing open."""
+    docker = shutil.which("docker")
+    if not docker:
+        return set()
+    server = f"k3d-{name}-server-0"
+    try:
+        res = subprocess.run(
+            [docker, "exec", server, "ctr", "-n", "k8s.io", "images", "list", "-q"],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            check=False,
+            timeout=15.0,
+            cwd=ROOT,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return set()
+    if res.returncode != 0:
+        return set()
+    return {line.strip() for line in res.stdout.splitlines() if line.strip()}
+
+
+def import_images_into_cluster(images: list[str], name: str = CLUSTER_NAME) -> int:
+    """Import images one at a time so k3d cannot mask a partial bulk import."""
+    k3d = shutil.which("k3d")
+    if not k3d:
+        print("k3d CLI not found on PATH.", file=sys.stderr)
+        return 1
+
+    existing = _existing_cluster_images(name)
+    for image in images:
+        if existing.intersection(_image_variants(image)):
+            print(f"Skipping {image}; already present in k3d cluster '{name}'.")
+            continue
+        print(f"Importing {image} into k3d cluster '{name}'...")
+        res = _run([k3d, "image", "import", image, "-c", name], check=False)
+        if res.returncode != 0:
+            print(f"ERROR: Failed to import {image} into cluster '{name}'.", file=sys.stderr)
+            return res.returncode
+    return 0
+
+
+def pull_images(images: list[str]) -> int:
+    """Ensure pinned third-party images exist in the host Docker cache."""
+    docker = shutil.which("docker")
+    if not docker:
+        print("docker CLI not found on PATH.", file=sys.stderr)
+        return 1
+
+    for image in images:
+        inspect = subprocess.run(
+            [docker, "image", "inspect", image],
+            capture_output=True,
+            text=True,
+            check=False,
+            cwd=ROOT,
+        )
+        if inspect.returncode == 0:
+            continue
+        print(f"Pulling pinned dependency image {image}...")
+        res = _run([docker, "pull", image], check=False)
+        if res.returncode != 0:
+            print(f"ERROR: Failed to pull dependency image {image}.", file=sys.stderr)
+            return res.returncode
+    return 0
+
+
 def _run(cmd: list[str], check: bool = True) -> subprocess.CompletedProcess[str]:
     print(f"--> {' '.join(cmd)}")
     res = subprocess.run(cmd, capture_output=True, text=True, check=False, cwd=ROOT)
@@ -87,17 +170,13 @@ def cluster_create(
 
     if import_images:
         print("Importing local container images into k3d cluster...")
-        import_cmd = [
-            k3d,
-            "image",
-            "import",
+        rc = import_images_into_cluster([
             "kubesentinel-edge-api:latest",
             "kubesentinel-edge-worker:latest",
             "redis:7.4.2-alpine",
-            "-c",
-            name,
-        ]
-        _run(import_cmd, check=False)
+        ], name=name)
+        if rc != 0:
+            return rc
 
     print(f"k3d cluster '{name}' successfully created and initialized.")
     return 0

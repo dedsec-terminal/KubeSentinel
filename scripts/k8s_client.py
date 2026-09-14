@@ -7,6 +7,7 @@ import json
 import shutil
 import socket
 import subprocess
+import tempfile
 import time
 from pathlib import Path
 from typing import Any
@@ -15,6 +16,7 @@ from urllib import request
 
 ROOT = Path(__file__).resolve().parents[1]
 SERVER_CONTAINER = "k3d-kubesentinel-server-0"
+HELM_IMAGE = "alpine/helm:4.3.0@sha256:a6cf54599ccb99d90cf0712b30f03fdb3cab062e6b94e0418cc4db7e8a1464b2"
 
 _USE_CONTAINER_KUBECTL: bool | None = None
 
@@ -124,38 +126,11 @@ def run_helm(
     check: bool = False,
     timeout: float = 120.0,
 ) -> subprocess.CompletedProcess[str]:
-    """Execute helm command with native host execution or containerized fallback."""
-    exec_cmd = [
-        "docker",
-        "exec",
-        "-i",
-        "-e",
-        "KUBECONFIG=/etc/rancher/k3s/k3s.yaml",
-        SERVER_CONTAINER,
-        "helm",
-    ] + args
-    try:
-        res = subprocess.run(
-            exec_cmd,
-            input=input_text,
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-            errors="replace",
-            check=False,
-            timeout=timeout,
-            cwd=ROOT,
-        )
-        if check and res.returncode != 0:
-            raise RuntimeError(f"helm inside {SERVER_CONTAINER} failed ({res.returncode}): {res.stderr}")
-        return res
-    except (subprocess.SubprocessError, OSError):
-        pass
-
+    """Execute Helm on the host or in a pinned helper beside the k3s server."""
     helm = shutil.which("helm")
-    if helm:
+    if helm and is_native_kubectl_available():
         res = subprocess.run(
-            [helm] + args,  # type: ignore[operator]
+            [helm] + args,
             input=input_text,
             capture_output=True,
             text=True,
@@ -169,7 +144,55 @@ def run_helm(
             raise RuntimeError(f"helm failed ({res.returncode}): {res.stderr}")
         return res
 
-    raise RuntimeError("Helm executable not available on host or in cluster container")
+    docker = shutil.which("docker")
+    if not docker:
+        raise RuntimeError("Helm requires either a reachable host kubeconfig or Docker helper fallback")
+
+    with tempfile.TemporaryDirectory(prefix="kubesentinel-helm-") as temp_dir:
+        kubeconfig = Path(temp_dir) / "k3s.yaml"
+        copy_res = subprocess.run(
+            [docker, "cp", f"{SERVER_CONTAINER}:/etc/rancher/k3s/k3s.yaml", str(kubeconfig)],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            check=False,
+            timeout=30.0,
+            cwd=ROOT,
+        )
+        if copy_res.returncode != 0:
+            message = f"Unable to copy the cluster kubeconfig for Helm: {copy_res.stderr}"
+            if check:
+                raise RuntimeError(message)
+            return subprocess.CompletedProcess(copy_res.args, copy_res.returncode, copy_res.stdout, message)
+
+        helper_cmd = [
+            docker,
+            "run",
+            "--rm",
+            "--network",
+            f"container:{SERVER_CONTAINER}",
+            "-i",
+            "-e",
+            "KUBECONFIG=/tmp/k3s.yaml",
+            "-v",
+            f"{kubeconfig}:/tmp/k3s.yaml:ro",
+            HELM_IMAGE,
+        ] + args
+        res = subprocess.run(
+            helper_cmd,
+            input=input_text,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            check=False,
+            timeout=timeout,
+            cwd=ROOT,
+        )
+        if check and res.returncode != 0:
+            raise RuntimeError(f"Helm helper failed ({res.returncode}): {res.stderr}")
+        return res
 
 
 def apply_yaml(content: str) -> subprocess.CompletedProcess[str]:

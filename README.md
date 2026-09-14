@@ -4,7 +4,20 @@
 [![Security](https://github.com/dedsec-terminal/KubeSentinel/actions/workflows/security.yml/badge.svg)](https://github.com/dedsec-terminal/KubeSentinel/actions/workflows/security.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
 
-KubeSentinel is a local-first Kubernetes security lab for exploring workload hardening, network segmentation, admission control, authenticated event streaming, centralized telemetry, runtime detection, and detection engineering.
+KubeSentinel is a local-first cloud-native security engineering lab that deploys three simulated edge environments as isolated Kubernetes namespaces, streams authenticated security events through Redis, centralizes application and Falco runtime telemetry in Elastic, and enforces workload security through RBAC, NetworkPolicy, Pod Security Admission, and Kyverno.
+
+## Validated V1
+
+- **5/5 controlled security scenarios passed**, covering runtime detection, Redis access control, RBAC, admission policy, and cross-edge isolation.
+- **298/298 automated tests pass** in the current checkout; the audited V1 release snapshot recorded 287/287.
+- **64/64 specified V1 exit criteria passed** in the independent release audit.
+- **9 Kyverno admission policies enforced** across the application namespaces.
+- **Command-scoped Redis identities** separate producer, consumer, and bootstrap permissions.
+- **Falco modern-eBPF alerts shipped to Elasticsearch** as structured runtime telemetry.
+- **Detection tuning reduced 33 candidates to 25** while retaining 25/25 controlled shell events.
+- **CI and security scanning run automatically** with GitHub Actions, Trivy, Checkov, Hadolint, and SBOM generation.
+
+These are controlled local-lab results, not production performance or detection-rate claims. See the [validation snapshot](#validation), [sanitized evidence](docs/evidence), and [project limitations](#limitations).
 
 ## Overview
 
@@ -97,6 +110,18 @@ The repository includes three Elasticsearch rule or hunt definitions:
 
 The final controlled tuning snapshot contained 33 candidate events: 25 controlled shell events and 8 benign maintenance candidates. The tuned query retained 25/25 controlled events, suppressed 8/8 benign candidates, and reduced candidate volume by 24.24%. These are deterministic local-lab measurements, not production detection or false-positive rates. See [the tuning study](docs/detection-tuning/shell-detection.md).
 
+## Visual Proof
+
+The public evidence set ties the implementation to three high-signal views: the canonical scenario run, a Kyverno admission rejection, and a real Falco alert indexed in Kibana.
+
+| Canonical run | Admission control |
+| --- | --- |
+| ![KubeSentinel canonical 8-step demo](docs/screenshots/01_canonical_demo_terminal.png) | ![Kyverno rejecting a non-compliant workload](docs/screenshots/05_kyverno_admission_rejection.png) |
+
+![Falco runtime alert in Kibana Discover](docs/screenshots/02_kibana_falco_runtime_alert.png)
+
+These captures are sanitized local-lab evidence, not production screenshots or performance claims. The [setup/network troubleshooting guide](docs/troubleshooting.md) covers the repeatable local access paths used to produce the same results.
+
 ## Technology Stack
 
 | Component | Tested version | Role |
@@ -164,9 +189,11 @@ PowerShell wrappers are also available:
 
 The setup and teardown commands scope destructive actions to KubeSentinel resources. Review [docs/demo-guide.md](docs/demo-guide.md) before running the live scenarios.
 
+If Docker Desktop cannot expose the k3d API or a dependency image is not present in the node runtime, use the [setup and network troubleshooting guide](docs/troubleshooting.md).
+
 ## Validation
 
-The final V1 release gate was executed once against the local lab and recorded the following results:
+The final V1 release gate was executed once against the local lab and recorded the following historical snapshot. The current checkout has since added unit coverage; run `python -m pytest -q` for the live count:
 
 | Check | Result |
 | --- | ---: |

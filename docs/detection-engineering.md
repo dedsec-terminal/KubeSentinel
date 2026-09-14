@@ -84,7 +84,7 @@ All detection definitions in `detections/elastic/rules/` are authored in YAML an
 
 ---
 
-## 4. Production Detection Rules & Hunting Content
+## 4. Lab-Validated Detection Rules & Hunting Content
 
 KubeSentinel includes three detection or hunting definitions under `detections/elastic/rules/`:
 

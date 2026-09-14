@@ -24,6 +24,8 @@ from scripts.cluster import (
     cluster_exists,
     cluster_start,
     cluster_stop,
+    import_images_into_cluster,
+    pull_images,
 )
 from scripts.k8s_client import (
     SERVER_CONTAINER,
@@ -38,6 +40,19 @@ from scripts.sbom import build_images
 K8S_DIR = ROOT / "kubernetes"
 POLICIES_DIR = ROOT / "policies"
 DEFAULT_TIMEOUT_SEC = 180
+
+PINNED_DEPENDENCY_IMAGES = [
+    "redis:7.4.2-alpine",
+    "docker.elastic.co/elasticsearch/elasticsearch:8.17.3",
+    "docker.elastic.co/kibana/kibana:8.17.3",
+    "fluent/fluent-bit:3.2.4",
+    "docker.io/falcosecurity/falco:0.44.1",
+    "reg.kyverno.io/kyverno/kyvernopre:v1.19.1",
+    "reg.kyverno.io/kyverno/kyverno:v1.19.1",
+    "reg.kyverno.io/kyverno/background-controller:v1.19.1",
+    "reg.kyverno.io/kyverno/cleanup-controller:v1.19.1",
+    "reg.kyverno.io/kyverno/reports-controller:v1.19.1",
+]
 
 PROJECT_NAMESPACES = [
     "kubesentinel-system",
@@ -71,15 +86,17 @@ def preflight_checks() -> dict[str, Any]:
         "git": shutil.which("git"),
     }
     for tool_name, tool_path in tools.items():
-        status = "PASS" if tool_path else "FAIL"
+        container_fallback = tool_name in {"kubectl", "helm"} and bool(tools["docker"])
+        status = "PASS" if tool_path or container_fallback else "FAIL"
         if status == "FAIL":
             checks["passed"] = False
+        detail = tool_path or ("Docker-backed helper" if container_fallback else "NOT FOUND on PATH")
         checks["details"].append({
             "check": f"tool:{tool_name}",
             "status": status,
-            "detail": tool_path or "NOT FOUND on PATH",
+            "detail": detail,
         })
-        print(f"  [{status}] Tool {tool_name}: {tool_path or 'NOT FOUND'}")
+        print(f"  [{status}] Tool {tool_name}: {detail}")
 
     # 2. Docker daemon check
     if tools["docker"]:
@@ -188,7 +205,7 @@ def ensure_cluster_running() -> int:
 
 
 def build_and_import_images(tag: str = "1.0.0", skip_build: bool = False) -> int:
-    """Build application images and import them into k3d cluster."""
+    """Build application images and stage every pinned image in the k3d runtime."""
     print("\n=== Application Images (Build & k3d Import) ===")
     if not skip_build:
         rc = build_images(tag=tag)
@@ -197,10 +214,9 @@ def build_and_import_images(tag: str = "1.0.0", skip_build: bool = False) -> int
     else:
         print("--> Skipping image build step (--skip-build).")
 
-    k3d = shutil.which("k3d")
-    if not k3d:
-        print("ERROR: k3d CLI not found.", file=sys.stderr)
-        return 1
+    rc = pull_images(PINNED_DEPENDENCY_IMAGES)
+    if rc != 0:
+        return rc
 
     images_to_import = [
         f"edge-api:{tag}",
@@ -209,14 +225,15 @@ def build_and_import_images(tag: str = "1.0.0", skip_build: bool = False) -> int
         f"kubesentinel-edge-worker:{tag}",
         "kubesentinel-edge-api:0.2.0",
         "kubesentinel-edge-worker:0.2.0",
-        "redis:7.4.2-alpine",
+        "kubesentinel-edge-api:latest",
+        "kubesentinel-edge-worker:latest",
+        *PINNED_DEPENDENCY_IMAGES,
     ]
 
-    print(f"--> Importing container images into k3d cluster '{CLUSTER_NAME}'...")
-    import_cmd = [k3d, "image", "import"] + images_to_import + ["-c", CLUSTER_NAME]
-    res = subprocess.run(import_cmd, cwd=ROOT, check=False)
-    if res.returncode != 0:
-        print(f"WARNING: Image import returned non-zero code {res.returncode}. Continuing if already imported.", file=sys.stderr)
+    print(f"--> Importing container images one at a time into k3d cluster '{CLUSTER_NAME}'...")
+    rc = import_images_into_cluster(images_to_import, name=CLUSTER_NAME)
+    if rc != 0:
+        return rc
 
     print("[+] Container images imported into k3d.")
     return 0
@@ -256,7 +273,7 @@ def deploy_core_resources(timeout_sec: int = DEFAULT_TIMEOUT_SEC) -> int:
     res = run_kubectl([
         "rollout", "status", "deployment/redis",
         "-n", "kubesentinel-system", f"--timeout={timeout_sec}s",
-    ])
+    ], timeout=float(timeout_sec + 30))
     if res.returncode != 0:
         print(f"ERROR: Redis rollout failed: {res.stderr}", file=sys.stderr)
         return 1
@@ -272,7 +289,7 @@ def deploy_core_resources(timeout_sec: int = DEFAULT_TIMEOUT_SEC) -> int:
         "wait", "--for=condition=complete",
         f"--timeout={timeout_sec}s", "job/redis-bootstrap",
         "-n", "kubesentinel-system",
-    ])
+    ], timeout=float(timeout_sec + 30))
     if res.returncode != 0:
         print(f"ERROR: Redis bootstrap job failed: {res.stderr}", file=sys.stderr)
         return 1
@@ -287,7 +304,7 @@ def deploy_core_resources(timeout_sec: int = DEFAULT_TIMEOUT_SEC) -> int:
         res = run_kubectl([
             "rollout", "status", "deployment/edge-api",
             "-n", ns, f"--timeout={timeout_sec}s",
-        ])
+        ], timeout=float(timeout_sec + 30))
         if res.returncode != 0:
             print(f"ERROR: edge-api rollout in {ns} failed: {res.stderr}", file=sys.stderr)
             return 1
@@ -296,7 +313,7 @@ def deploy_core_resources(timeout_sec: int = DEFAULT_TIMEOUT_SEC) -> int:
     res = run_kubectl([
         "rollout", "status", "deployment/edge-worker",
         "-n", "kubesentinel-system", f"--timeout={timeout_sec}s",
-    ])
+    ], timeout=float(timeout_sec + 30))
     if res.returncode != 0:
         print(f"ERROR: edge-worker rollout failed: {res.stderr}", file=sys.stderr)
         return 1
@@ -341,7 +358,7 @@ def deploy_kyverno(timeout_sec: int = DEFAULT_TIMEOUT_SEC) -> int:
         if val_file.is_file():
             install_cmd.extend(["-f", "-"])
             input_text = val_file.read_text(encoding="utf-8")
-        res = run_helm(install_cmd, input_text=input_text)
+        res = run_helm(install_cmd, input_text=input_text, timeout=float(timeout_sec + 30))
         if res.returncode != 0:
             print(f"ERROR: Kyverno Helm installation failed: {res.stderr}", file=sys.stderr)
             return 1
@@ -359,7 +376,7 @@ def deploy_kyverno(timeout_sec: int = DEFAULT_TIMEOUT_SEC) -> int:
         res = run_kubectl([
             "rollout", "status", f"deployment/{ctrl}",
             "-n", "kyverno", f"--timeout={timeout_sec}s",
-        ])
+        ], timeout=float(timeout_sec + 30))
         if res.returncode != 0:
             print(f"WARNING: Kyverno controller rollout check for {ctrl}: {res.stderr}", file=sys.stderr)
 
