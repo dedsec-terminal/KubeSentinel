@@ -1,22 +1,22 @@
-# KubeSentinel System Architecture & Design Specification (V1.0.0)
+# KubeSentinel System Architecture & Design Specification
 
 ## 1. System Overview
 
 KubeSentinel is a local Kubernetes security engineering and detection lab that combines workload hardening, policy-as-code admission enforcement, network segmentation, authenticated event streaming, kernel-level runtime monitoring through modern eBPF, and evidence-based detection tuning on a single-node cluster.
 
-The architecture models a distributed edge-computing topology inside one local Kubernetes cluster. Three logical site namespaces (`edge-pune`, `edge-mumbai`, and `edge-bangalore`) publish validated security events through authenticated Redis Streams to central processing in `kubesentinel-system`. The `edge-worker` consumer group validates, enriches, and acknowledges each stream entry; Fluent Bit then routes application output and Falco modern-eBPF runtime alerts into separate Elasticsearch indices for investigation in Kibana. The sites represent namespace-level trust boundaries, not physical facilities or independent clusters.
+The architecture models a distributed edge-computing topology inside one local Kubernetes cluster. Three logical site namespaces (`edge-pune`, `edge-mumbai`, and `edge-bangalore`) publish validated security events through authenticated Redis Streams to central processing in `kubesentinel-system`. The `edge-worker` consumer group validates, enriches, and acknowledges each stream entry; Fluent Bit then routes structured worker output, edge API access logs, and Falco modern-eBPF runtime alerts into separate Elasticsearch indices for investigation in Kibana. The sites represent namespace-level trust boundaries, not physical facilities or independent clusters.
 
 ```mermaid
 flowchart LR
     subgraph Edge["Logical edge namespaces"]
-        P["edge-pune<br/>edge-api"]
-        M["edge-mumbai<br/>edge-api"]
-        B["edge-bangalore<br/>edge-api"]
+        P["edge-pune<br/>edge-api / HTTP logs"]
+        M["edge-mumbai<br/>edge-api / HTTP logs"]
+        B["edge-bangalore<br/>edge-api / HTTP logs"]
     end
 
     subgraph Core["kubesentinel-system"]
         R["Redis Streams<br/>ACL-protected"]
-        W["edge-worker"]
+        W["edge-worker<br/>structured processed-event JSON"]
     end
 
     subgraph Runtime["security-agents"]
@@ -32,8 +32,9 @@ flowchart LR
     P -->|XADD| R
     M -->|XADD| R
     B -->|XADD| R
-    R -->|XREADGROUP| W
-    W -->|structured stdout| FB
+    W -->|XREADGROUP / XACK| R
+    R -->|stream entries| W
+    W -->|structured processed-event JSON| FB
     F -->|runtime alert JSON| FB
     FB -->|bulk indexing| ES
     ES --> KB

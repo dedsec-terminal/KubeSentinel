@@ -6,11 +6,10 @@
 
 KubeSentinel is a local-first cloud-native security engineering lab that deploys three simulated edge environments as isolated Kubernetes namespaces, streams authenticated security events through Redis, centralizes application and Falco runtime telemetry in Elastic, and enforces workload security through RBAC, NetworkPolicy, Pod Security Admission, and Kyverno.
 
-## Validated V1
+## Validated Implementation
 
 - **5/5 controlled security scenarios passed**, covering runtime detection, Redis access control, RBAC, admission policy, and cross-edge isolation.
-- **298/298 automated tests pass** in the current checkout; the audited V1 release snapshot recorded 287/287.
-- **64/64 specified V1 exit criteria passed** in the independent release audit.
+- **298/298 automated tests pass** in the current checkout; the recorded integration run had 287/287.
 - **9 Kyverno admission policies enforced** across the application namespaces.
 - **Command-scoped Redis identities** separate producer, consumer, and bootstrap permissions.
 - **Falco modern-eBPF alerts shipped to Elasticsearch** as structured runtime telemetry.
@@ -30,14 +29,14 @@ KubeSentinel combines preventive controls (Pod Security Admission, Kyverno, RBAC
 ```mermaid
 flowchart LR
     subgraph Edge["Logical edge namespaces"]
-        P["edge-pune<br/>edge-api"]
-        M["edge-mumbai<br/>edge-api"]
-        B["edge-bangalore<br/>edge-api"]
+        P["edge-pune<br/>edge-api / HTTP logs"]
+        M["edge-mumbai<br/>edge-api / HTTP logs"]
+        B["edge-bangalore<br/>edge-api / HTTP logs"]
     end
 
     subgraph Core["kubesentinel-system"]
         R["Redis Streams<br/>security-events"]
-        W["edge-worker"]
+        W["edge-worker<br/>structured processed-event JSON"]
     end
 
     subgraph Observability["observability"]
@@ -53,8 +52,9 @@ flowchart LR
     P --> R
     M --> R
     B --> R
-    R --> W
-    W --> FB
+    W -->|XREADGROUP / XACK| R
+    R -->|stream entries| W
+    W -->|structured processed-event JSON| FB
     F --> FB
     FB --> ES
     ES --> KB
@@ -89,12 +89,14 @@ sequenceDiagram
     participant Kibana as Kibana
 
     API->>Redis: XADD security-events
-    Redis-->>Worker: XREADGROUP
-    Worker->>Worker: Validate and emit structured JSON
+    Worker->>Redis: XREADGROUP
+    Redis-->>Worker: Stream entries
+    Worker->>Worker: Validate and process
     Worker->>Redis: XACK
-    Worker-->>Fluent: Application telemetry on stdout
-    Falco-->>Fluent: Runtime alert JSON
-    Fluent->>Elastic: Route to app and Falco indices
+    API-->>Fluent: HTTP/access logs via container logs
+    Worker-->>Fluent: Structured processed-event JSON on stdout
+    Falco-->>Fluent: Runtime alert JSON via container logs
+    Fluent->>Elastic: Indexed application and Falco documents
     Elastic-->>Kibana: Searchable telemetry
 ```
 
@@ -136,7 +138,7 @@ These captures are sanitized local-lab evidence, not production screenshots or p
 | Elasticsearch / Kibana | `8.17.3` | Local telemetry store and investigation UI |
 | Trivy / Checkov / Hadolint | Pinned in workflows | Supply-chain, IaC, and Dockerfile checks |
 
-Versions describe the validated V1 environment; review the manifests and lock constraints before changing them.
+Versions describe the validated environment; review the manifests and lock constraints before changing them.
 
 ## Controlled Security Scenarios
 
@@ -154,14 +156,14 @@ All scenarios are synthetic and designed for repeatable validation in the local 
 
 The [CI workflow](.github/workflows/ci.yml) runs the CI-safe pytest set, Ruff, Python compilation, YAML checks, Kyverno policy validation, Helm validation, and Hadolint. The [security workflow](.github/workflows/security.yml) runs Trivy filesystem, configuration, and image scans, Checkov IaC checks, and SBOM generation with least-privilege `contents: read` permissions. Third-party actions are pinned to immutable commit SHAs.
 
-`python scripts/kubesentinel.py sbom` generates CycloneDX and SPDX documents plus SHA-256 metadata under the ignored `artifacts/sbom/` directory. The final V1 audit generated 306 components across the two application images; generated SBOMs are reproducible release artifacts rather than committed source files.
+`python scripts/kubesentinel.py sbom` generates CycloneDX and SPDX documents plus SHA-256 metadata under the ignored `artifacts/sbom/` directory. The validation run generated 306 components across the two application images; generated SBOMs are reproducible release artifacts rather than committed source files.
 
 ## Quick Start
 
 ### Prerequisites
 
 - Docker Desktop with the Linux container backend and WSL2 on Windows
-- Python 3.11 through 3.14 (the final V1 audit used 3.14.2)
+- Python 3.11 through 3.14 (the recorded validation used 3.14.2)
 - `kubectl`, `k3d`, and Helm
 - Approximately 6 GB available to Docker for the complete observability stack
 
@@ -193,7 +195,7 @@ If Docker Desktop cannot expose the k3d API or a dependency image is not present
 
 ## Validation
 
-The final V1 release gate was executed once against the local lab and recorded the following historical snapshot. The current checkout has since added unit coverage; run `python -m pytest -q` for the live count:
+A complete local integration validation recorded the following results. Additional unit coverage added afterward brings the current repository test count to 298:
 
 | Check | Result |
 | --- | ---: |
@@ -210,9 +212,7 @@ The final V1 release gate was executed once against the local lab and recorded t
 | Detection validation | 5/5 passed |
 | Controlled simulations | 5/5 passed |
 | Canonical demonstration | 8/8 steps passed in 56.09 seconds |
-| Release exit criteria | 64/64 passed |
-
-Sanitized command evidence is retained under [docs/evidence](docs/evidence). Counts are snapshots from the final audited environment and may change as the codebase evolves.
+Sanitized command evidence is retained under [docs/evidence](docs/evidence). Counts are snapshots from the recorded validation environment and may change as the codebase evolves.
 
 ## Repository Structure
 
@@ -222,7 +222,7 @@ KubeSentinel/
 ├── apps/                    # edge-api, edge-worker, and shared event models
 ├── deploy/compose/          # Local Redis and Compose configuration
 ├── detections/elastic/      # Rule schema, field catalog, rules, and validator
-├── docs/                    # Architecture, security, operations, evidence, and release notes
+├── docs/                    # Architecture, security, operations, evidence, and validation records
 ├── helm/third-party/        # Versioned Falco and Kyverno values
 ├── kubernetes/              # Namespaces, workloads, RBAC, networking, and observability
 ├── policies/kyverno/        # Admission policies
@@ -236,7 +236,7 @@ Local credentials, development notes, caches, generated SBOMs, kubeconfigs, and 
 
 ## Resource Profile
 
-The final release gate ran on Windows 11 with WSL2, Docker Desktop configured with 6 CPUs and about 6.2 GB of memory, and a 512 MB Elasticsearch JVM heap. The host had about 15.7 GB of physical memory, so available headroom was monitored before cluster creation. Resource needs vary by platform and concurrent workload.
+The recorded validation ran on Windows 11 with WSL2, Docker Desktop configured with 6 CPUs and about 6.2 GB of memory, and a 512 MB Elasticsearch JVM heap. The host had about 15.7 GB of physical memory, so available headroom was monitored before cluster creation. Resource needs vary by platform and concurrent workload.
 
 ## Cost
 
@@ -262,7 +262,7 @@ KubeSentinel runs locally, so you can set it up and learn without paying for clo
 - [Kyverno policies](docs/kyverno-policies.md)
 - [Detection engineering](docs/detection-engineering.md)
 - [Demonstration guide](docs/demo-guide.md)
-- [V1.0.0 release notes](docs/release-notes-v1.0.0.md)
+- [Project validation record](docs/project-validation.md)
 
 ## License
 

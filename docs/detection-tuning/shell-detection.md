@@ -197,7 +197,7 @@ The comparative evaluation was executed against live Elasticsearch data in `kube
 
 ### 6.2 Analysis of Retained Controlled Attack Scenarios
 
-The final committed metrics artifact records 25 controlled shell events produced by the simulation and validation workflows. None matched the `*diag-maintenance*` or `*healthcheck*` exclusions, so V2 retained all 25. An earlier command capture under `docs/evidence/milestone-f/` records 23 events; the final metrics snapshot was written later in the release-gate sequence and is the value used for V1.0.0 publication.
+The final committed metrics artifact records 25 controlled shell events produced by the simulation and validation workflows. None matched the `*diag-maintenance*` or `*healthcheck*` exclusions, so V2 retained all 25. An earlier command capture under `docs/evidence/milestone-f/` records 23 events; the final metrics snapshot was written later in the validation sequence and is the value used in the published project record.
 
 ### 6.3 Analysis of Suppressed Benign Maintenance Scenarios
 

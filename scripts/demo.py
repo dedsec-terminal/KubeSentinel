@@ -32,7 +32,7 @@ from simulations.runner import run_simulation
 
 def _banner() -> None:
     print("\n" + "=" * 76)
-    print("  KubeSentinel V1.0.0 -- Canonical 8-Step Security Demonstration")
+    print("  KubeSentinel -- Canonical 8-Step Security Demonstration")
     print("  Defense-in-Depth, eBPF Runtime Detection & Empirical Detection Tuning")
     print("=" * 76 + "\n")
 

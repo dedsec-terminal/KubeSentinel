@@ -7,7 +7,8 @@ KubeSentinel's detection engineering workflow turns kernel-level events and appl
 ```mermaid
 flowchart TD
     Kernel["Linux kernel tracepoints"] -->|modern eBPF| Falco["Falco DaemonSet"]
-    Workloads["edge-api and edge-worker"] -->|structured stdout| CRI["Node CRI logs"]
+    API["edge-api<br/>HTTP/API logs"] -->|container logs| CRI["Node CRI logs"]
+    Worker["edge-worker<br/>structured processed-event JSON"] -->|structured stdout| CRI
     Falco -->|runtime alert JSON| CRI
     CRI --> Fluent["Fluent Bit<br/>parse and enrich"]
     Fluent --> App["kubesentinel-app-*"]
@@ -55,7 +56,7 @@ All detection content is strictly grounded in real Elasticsearch documents verif
 
 ## 3. Strict Rule Specification (`schema.json`)
 
-All detection definitions in `detections/elastic/rules/` are authored in YAML and validated against `detections/elastic/schema.json` (JSON Schema Draft 7). Core operational metadata is required; `mitre_attack` is optional and is omitted when the telemetry does not support a specific technique:
+All detection definitions in `detections/elastic/rules/` are authored in YAML and validated against `detections/elastic/schema.json` (JSON Schema Draft 7). Core operational metadata is required; `mitre_attack` is optional and is omitted when the telemetry does not support a specific technique. A `validated` status means the definition was exercised against controlled local telemetry; it does not imply production deployment:
 
 ```json
 {
@@ -63,7 +64,7 @@ All detection definitions in `detections/elastic/rules/` are authored in YAML an
   "name": "Human-readable rule title",
   "description": "Clear explanation of detection objective",
   "severity": "low | medium | high | critical",
-  "status": "production | experimental | deprecated | hunting",
+  "status": "validated | experimental | hunting",
   "index": "Index pattern targeted (e.g. kubesentinel-falco-*)",
   "language": "lucene | kql | eql | esql",
   "query": "Execution query string",

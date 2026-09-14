@@ -36,7 +36,7 @@ The runner prints structured `[HEALTH]`, `[TELEMETRY]`, `[DETECTION]`, `[PREVENT
 Result: 8/8 steps passed in <duration>s -- ALL VALIDATION STEPS PASSED
 ```
 
-Duration and live Elasticsearch hit counts vary between runs. The final V1 release audit recorded 8/8 steps in 56.09 seconds.
+Duration and live Elasticsearch hit counts vary between runs. The recorded local validation run completed all 8/8 steps in 56.09 seconds.
 
 ## What Each Step Verifies
 
@@ -73,7 +73,7 @@ Steps 4 through 7 validate rejection at the relevant enforcement boundary. A blo
 
 ### Detection Tuning
 
-The final controlled V1 snapshot contains 33 candidates: 25 controlled shell events and 8 benign maintenance candidates. The tuned query retains 25/25 controlled events, suppresses 8/8 benign candidates, and reduces candidate volume by 24.24%. These figures describe the committed local-lab dataset only.
+The controlled validation snapshot contains 33 candidates: 25 controlled shell events and 8 benign maintenance candidates. The tuned query retains 25/25 controlled events, suppresses 8/8 benign candidates, and reduces candidate volume by 24.24%. These figures describe the committed local-lab dataset only.
 
 See [detection-engineering.md](detection-engineering.md) and [detection-tuning/shell-detection.md](detection-tuning/shell-detection.md) for query details and limitations.
 

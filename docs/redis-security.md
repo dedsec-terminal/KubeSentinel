@@ -8,7 +8,8 @@ KubeSentinel uses an authenticated, least-privilege Redis Streams pipeline to de
 flowchart LR
     Client["HTTP client"] -->|POST /events| API["edge-api<br/>UID 10001:10001"]
     API -->|XADD security-events<br/>producer ACL| R[("Redis 7.4.2<br/>internal bridge<br/>port 6379 not published")]
-    R -->|XREADGROUP edge-workers<br/>consumer ACL| W["edge-worker<br/>UID 10001:10001"]
+    W -->|XREADGROUP edge-workers<br/>consumer ACL| R
+    R -->|stream entries| W["edge-worker<br/>UID 10001:10001"]
     W -->|stdout| Log["Structured JSON log"]
     W -->|XACK security-events\nuser: consumer| R
 ```

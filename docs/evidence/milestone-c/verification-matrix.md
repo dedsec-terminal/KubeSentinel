@@ -1,8 +1,8 @@
-# Milestone C: 48 Exit Criteria Verification Matrix
+# Milestone C: Technical Verification Matrix
 
-This matrix documents the verification status for all 48 exit criteria defined for KubeSentinel Milestone C (Kubernetes Foundation + Secure Workload Deployment).
+This matrix documents the verification status for 48 technical checks covering the Kubernetes foundation and secure workload deployment.
 
-| # | Category | Exit Criterion | Verification Method | Evidence File | Status |
+| # | Category | Technical Check | Verification Method | Evidence File | Status |
 |---|---|---|---|---|---|
 | 1 | Cluster Lifecycle | k3d single-node cluster `kubesentinel` created successfully | `python scripts/kubesentinel.py cluster-create` | `cluster-info.txt` | PASS |
 | 2 | Cluster Lifecycle | k3s image pinned to exact patch tag `rancher/k3s:v1.35.5-k3s1` | `kubectl version`, `crictl info` | `cluster-info.txt` | PASS |

@@ -42,8 +42,8 @@
     },
     "status": {
       "type": "string",
-      "enum": ["production", "experimental", "hunting"],
-      "description": "Operational maturity lifecycle status."
+      "enum": ["production", "validated", "experimental", "hunting"],
+      "description": "Operational maturity lifecycle status; validated indicates exercise against controlled local telemetry."
     },
     "index": {
       "type": "string",

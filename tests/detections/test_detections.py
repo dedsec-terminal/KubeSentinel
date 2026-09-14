@@ -91,7 +91,7 @@ def test_all_detection_rules_conform_to_schema() -> None:
         jsonschema.validate(instance=data, schema=schema)
         assert data["id"]
         assert data["severity"] in ("low", "medium", "high", "critical")
-        assert data["status"] in ("production", "experimental", "deprecated", "hunting")
+        assert data["status"] in ("production", "validated", "experimental", "hunting")
         assert data["language"] in ("kql", "lucene", "eql", "esql")
         assert isinstance(data.get("mitre_attack", []), list)
 

@@ -2,7 +2,7 @@ id: kubesentinel-app-high-severity-event
 name: High-Severity Security Event Triage
 description: Identifies high-severity or critical security events emitted by edge workloads and ingested via authenticated Redis Streams and edge-worker processing, as well as stream processing error states.
 severity: high
-status: production
+status: validated
 index: kubesentinel-app-*
 language: lucene
 query: '(severity:(high OR critical) OR processing_status:error)'

@@ -2,7 +2,7 @@ id: kubesentinel-falco-unexpected-shell
 name: Unexpected Shell Execution in Edge Workload
 description: Detects interactive or command-line shell process spawning within KubeSentinel edge workload containers (edge-pune, edge-mumbai, edge-bangalore) as alerted by the Falco runtime syscall engine.
 severity: high
-status: production
+status: validated
 index: kubesentinel-falco-*
 language: lucene
 query: 'rule:"Unexpected shell in KubeSentinel edge workload" AND output_fields.k8s_ns_name.keyword:("edge-pune" OR "edge-mumbai" OR "edge-bangalore")'

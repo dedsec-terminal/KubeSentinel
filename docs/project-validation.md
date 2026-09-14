@@ -1,15 +1,15 @@
-# KubeSentinel v1.0.0 Release Notes
+# KubeSentinel Project Validation
 
-**Release date:** September 2026
-**Status:** Initial public release
+**Validation date:** September 2026
+**Status:** Public validation record
 **License:** Apache-2.0
 **Validated environment:** Windows 11, WSL2, Docker Desktop, and a single-node k3d cluster
 
 ## Summary
 
-KubeSentinel v1.0.0 packages a local Kubernetes security lab with hardened edge services, authenticated Redis Streams, admission and network controls, centralized application and runtime telemetry, controlled security scenarios, and detection-engineering exercises.
+KubeSentinel is a local Kubernetes security lab with hardened edge services, authenticated Redis Streams, admission and network controls, centralized application and runtime telemetry, controlled security scenarios, and detection-engineering exercises.
 
-The release is intended for repeatable local learning and testing. Running it locally avoids cloud-resource charges and trial limits. It is not a production reference architecture, and local results do not automatically generalize to multi-node or internet-facing environments.
+The project is intended for repeatable local learning and testing. Running it locally avoids cloud-resource charges and trial limits. It is not a production reference architecture, and local results do not automatically generalize to multi-node or internet-facing environments.
 
 ## Included Capabilities
 
@@ -49,9 +49,9 @@ The release is intended for repeatable local learning and testing. Running it lo
 - Ruff, pytest, compile checks, YAML validation, Helm validation, Hadolint, Trivy, and Checkov integration.
 - CycloneDX and SPDX SBOM generation with SHA-256 metadata under the ignored `artifacts/sbom/` output directory.
 
-## Final V1 Validation Snapshot
+## Recorded Local Validation
 
-The final release gate was executed once against the complete local lab:
+A complete local integration validation was executed once against the local lab:
 
 | Check | Result |
 | --- | ---: |
@@ -68,9 +68,8 @@ The final release gate was executed once against the complete local lab:
 | Detection validation | 5/5 passed |
 | Controlled simulations | 5/5 passed |
 | Canonical demo | 8/8 steps passed in 56.09 seconds |
-| Release criteria | 64/64 passed |
 
-Sanitized command captures from earlier milestones remain under `docs/evidence/`. They are historical snapshots and may show smaller intermediate test or tuning datasets than the final V1 audit.
+Additional unit coverage added afterward brings the current repository test count to 298. Sanitized command captures from earlier milestones remain under `docs/evidence/`; they are historical snapshots and may show smaller intermediate test or tuning datasets than the recorded validation run.
 
 ## Evidence Boundaries
 
@@ -84,7 +83,7 @@ Sanitized command captures from earlier milestones remain under `docs/evidence/`
 - The validated cluster has one k3d server node; edge locations are namespace-level simulations.
 - Elasticsearch uses a resource-conscious single-node configuration without high availability or production retention guarantees.
 - Falco needs host-level privileges for eBPF collection; the exception is scoped to `security-agents` and documented in scanner configuration.
-- The validated platform is Windows 11 with WSL2 and Docker Desktop. Other platforms may work but were not part of the final V1 audit.
+- The validated platform is Windows 11 with WSL2 and Docker Desktop. Other platforms may work but were not part of the recorded validation.
 - The lab uses local open-source components, so no cloud subscription or trial is required.
 
 ## Reproduce the Lab

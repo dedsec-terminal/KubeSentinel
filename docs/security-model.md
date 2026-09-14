@@ -1,4 +1,4 @@
-# KubeSentinel Security Model & Implemented Controls (V1.0.0)
+# KubeSentinel Security Model & Implemented Controls
 
 ## 1. Executive Summary
 
