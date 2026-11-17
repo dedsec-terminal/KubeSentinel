@@ -4,7 +4,15 @@
 [![Security](https://github.com/dedsec-terminal/KubeSentinel/actions/workflows/security.yml/badge.svg)](https://github.com/dedsec-terminal/KubeSentinel/actions/workflows/security.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
 
-KubeSentinel is a local-first cloud-native security engineering lab that deploys three simulated edge environments as isolated Kubernetes namespaces, streams authenticated security events through Redis, centralizes application and Falco runtime telemetry in Elastic, and enforces workload security through RBAC, NetworkPolicy, Pod Security Admission, and Kyverno.
+KubeSentinel is a hands-on Docker and Kubernetes lab for demonstrating container security and security telemetry. It brings application events and Falco runtime detections into Elasticsearch and Kibana to make workload behavior and security alerts searchable during controlled demonstrations.
+
+The project demonstrates how to:
+
+- Build and deploy containerized services with Docker and Kubernetes.
+- Collect, enrich, and investigate application and runtime telemetry with Fluent Bit, Elasticsearch, and Kibana.
+- Apply workload hardening, access controls, network isolation, and admission policies, then validate their behavior through repeatable security scenarios.
+
+The lab runs locally on one machine. Its architecture and recorded results are detailed below.
 
 ## Validated Implementation
 
