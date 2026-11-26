@@ -197,3 +197,90 @@ def test_tuning_study_documentation_exists() -> None:
     assert "Tuned Rule (V2)" in content
     assert "Empirical Detection Tuning" in content
     assert "100.0%" in content
+
+
+def test_fields_catalog_excludes_sample_values_and_includes_timestamp() -> None:
+    """Ensure sample values from FIELDS.md are excluded while @timestamp is cataloged."""
+    catalog = load_fields_catalog()
+    assert "@timestamp" in catalog
+    assert "output_fields.k8s_ns_name.keyword" in catalog
+    assert "pune" not in catalog
+    assert "sh" not in catalog
+
+
+def test_offline_corpus_evaluation_and_skipped_es_status() -> None:
+    """Verify labeled Lucene corpus matches in-scope events, excludes cross-ns/benign, and skips ES cleanly."""
+    from detections.elastic.validator import CORPUS_PATH, evaluate_rule_corpus
+
+    passed, results = validate_detections(check_es=False)
+    assert passed is True
+    for r in results:
+        assert r["es_status"] == "skipped"
+        assert r["es_valid"] is None
+        assert r["fixture_status"] == "passed"
+        assert r["corpus_size"] >= 2
+
+    corpus = json.loads(CORPUS_PATH.read_text(encoding="utf-8"))
+    shell_rule = parse_yaml((RULES_DIR / "unexpected-shell.yaml").read_text(encoding="utf-8"))
+    shell_rule["query"] = 'rule:"Unexpected shell in KubeSentinel edge workload"'
+    regressed = evaluate_rule_corpus(shell_rule, corpus)
+    assert regressed["status"] == "failed"
+
+
+def test_attack_navigator_layer_generation() -> None:
+    """Verify generated ATT&CK Navigator layer captures validated shell rule mapping and matches disk."""
+    from scripts.generate_attack_layer import build_attack_layer
+
+    layer = build_attack_layer()
+    assert layer["domain"] == "enterprise-attack"
+    ids = [t["techniqueID"] for t in layer["techniques"]]
+    assert "T1059.004" in ids
+    committed = json.loads((ROOT / "detections" / "elastic" / "attack-navigator-layer.json").read_text(encoding="utf-8"))
+    assert committed == layer
+
+
+def test_lucene_evaluator_keyword_case_escaping_exists_and_implicit_operators() -> None:
+    """Verify .keyword case sensitivity, escaped quotes, _exists_ rejection, and explicit boolean operators."""
+    from detections.elastic.lucene_eval import UnsupportedQueryError, evaluate_lucene
+
+    doc = {"output_fields": {"k8s_ns_name": "edge-pune"}, "rule": 'Quoted "shell" alert'}
+    assert evaluate_lucene("output_fields.k8s_ns_name.keyword:edge-pune", doc) is True
+    assert evaluate_lucene("output_fields.k8s_ns_name.keyword:EDGE-PUNE", doc) is False
+    assert evaluate_lucene('rule:"Quoted \\"shell\\" alert"', doc) is True
+    assert evaluate_lucene('rule:"quoted \\"shell\\" alert"', doc) is False
+
+    with pytest.raises(UnsupportedQueryError):
+        evaluate_lucene("_exists_:output_fields.k8s_ns_name", doc)
+    with pytest.raises(UnsupportedQueryError):
+        evaluate_lucene('rule:"unterminated', doc)
+    with pytest.raises(UnsupportedQueryError):
+        evaluate_lucene('rule:"abc\\"', doc)
+    with pytest.raises(UnsupportedQueryError):
+        evaluate_lucene("rule:Quoted output_fields.k8s_ns_name:edge-pune", doc)
+    with pytest.raises(UnsupportedQueryError):
+        evaluate_lucene("output_fields.k8s_ns_name:(edge-pune OR OR edge-mumbai)", doc)
+
+
+def test_validator_rejects_empty_fixtures_and_partial_es_responses(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Verify empty corpus fixtures, incomplete site fixtures, and partial/malformed ES responses fail closed."""
+    from detections.elastic import validator as val_mod
+
+    shell_rule = parse_yaml((RULES_DIR / "unexpected-shell.yaml").read_text(encoding="utf-8"))
+    empty_res = val_mod.evaluate_rule_corpus(shell_rule, {"rules": {"kubesentinel-falco-unexpected-shell": {"must_match": [], "must_not_match": []}}})
+    assert empty_res["status"] == "failed"
+
+    corpus = json.loads(val_mod.CORPUS_PATH.read_text(encoding="utf-8"))
+    no_blr = dict(shell_rule)
+    no_blr["query"] = no_blr["query"].replace(' OR "edge-bangalore"', "")
+    assert val_mod.evaluate_rule_corpus(no_blr, corpus)["status"] == "failed"
+
+    for bad_resp in (
+        {"timed_out": True, "_shards": {"total": 1, "successful": 0, "failed": 1}, "hits": {"total": {"value": 0, "relation": "eq"}}},
+        {"timed_out": False, "_shards": {}, "hits": {"total": {}}},
+        {"timed_out": False, "_shards": {"total": 2, "successful": 1, "failed": 0}, "hits": {"total": {"value": 0, "relation": "eq"}}},
+        {"timed_out": False, "terminated_early": True, "_shards": {"total": 1, "successful": 1, "failed": 0}, "hits": {"total": {"value": 0, "relation": "invalid"}}},
+    ):
+        monkeypatch.setattr(val_mod, "execute_es_query", lambda _idx, _q, r=bad_resp: (200, r))
+        passed, results = val_mod.validate_detections(check_es=True)
+        assert passed is False
+        assert all(r["es_status"] == "failed" for r in results)

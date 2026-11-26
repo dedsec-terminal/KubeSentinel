@@ -1,0 +1,48 @@
+{
+  "name": "KubeSentinel Lab Detections",
+  "versions": {
+    "attack": "15",
+    "navigator": "5.0",
+    "layer": "4.5"
+  },
+  "domain": "enterprise-attack",
+  "description": "MITRE ATT&CK techniques evidenced by KubeSentinel detection rules (controlled local-lab scope).",
+  "techniques": [
+    {
+      "techniqueID": "T1059.004",
+      "tactic": "execution",
+      "color": "#2ea043",
+      "score": 100,
+      "comment": "kubesentinel-falco-unexpected-shell (validated): Unexpected Shell Execution in Edge Workload",
+      "enabled": true,
+      "metadata": [
+        {
+          "name": "rule_id",
+          "value": "kubesentinel-falco-unexpected-shell"
+        },
+        {
+          "name": "status",
+          "value": "validated"
+        }
+      ]
+    }
+  ],
+  "legendItems": [
+    {
+      "label": "Production",
+      "color": "#1b7f3a"
+    },
+    {
+      "label": "Validated lab rule",
+      "color": "#2ea043"
+    },
+    {
+      "label": "Experimental",
+      "color": "#d29922"
+    },
+    {
+      "label": "Hunting",
+      "color": "#1f6feb"
+    }
+  ]
+}

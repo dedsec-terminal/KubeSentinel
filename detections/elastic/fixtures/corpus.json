@@ -1,0 +1,182 @@
+{
+  "description": "Labeled synthetic event corpus for offline KubeSentinel Lucene detection validation.",
+  "rules": {
+    "kubesentinel-falco-unexpected-shell": {
+      "must_match": [
+        {
+          "fixture_id": "shell-in-edge-pune",
+          "doc": {
+            "rule": "Unexpected shell in KubeSentinel edge workload",
+            "priority": "Warning",
+            "source": "syscall",
+            "output_fields": {
+              "k8s_ns_name": "edge-pune",
+              "k8s_pod_name": "edge-api-1",
+              "container_name": "edge-api",
+              "proc_cmdline": "sh -c id"
+            }
+          }
+        },
+        {
+          "fixture_id": "shell-in-edge-mumbai",
+          "doc": {
+            "rule": "Unexpected shell in KubeSentinel edge workload",
+            "priority": "Warning",
+            "source": "syscall",
+            "output_fields": {
+              "k8s_ns_name": "edge-mumbai",
+              "k8s_pod_name": "edge-api-2",
+              "container_name": "edge-api",
+              "proc_cmdline": "bash -c whoami"
+            }
+          }
+        },
+        {
+          "fixture_id": "shell-in-edge-bangalore",
+          "doc": {
+            "rule": "Unexpected shell in KubeSentinel edge workload",
+            "priority": "Warning",
+            "source": "syscall",
+            "output_fields": {
+              "k8s_ns_name": "edge-bangalore",
+              "k8s_pod_name": "edge-api-3",
+              "container_name": "edge-api",
+              "proc_cmdline": "ash -c env"
+            }
+          }
+        }
+      ],
+      "must_not_match": [
+        {
+          "fixture_id": "shell-in-wrong-namespace",
+          "doc": {
+            "rule": "Unexpected shell in KubeSentinel edge workload",
+            "priority": "Warning",
+            "source": "syscall",
+            "output_fields": {
+              "k8s_ns_name": "kube-system",
+              "k8s_pod_name": "coredns-1",
+              "container_name": "coredns",
+              "proc_cmdline": "sh -c true"
+            }
+          }
+        },
+        {
+          "fixture_id": "benign-other-falco-rule",
+          "doc": {
+            "rule": "Read sensitive file untrusted",
+            "priority": "Notice",
+            "source": "syscall",
+            "output_fields": {
+              "k8s_ns_name": "edge-pune",
+              "k8s_pod_name": "edge-api-1",
+              "container_name": "edge-api",
+              "proc_cmdline": "python3 app.py"
+            }
+          }
+        }
+      ]
+    },
+    "kubesentinel-app-high-severity-event": {
+      "must_match": [
+        {
+          "fixture_id": "app-critical-event",
+          "doc": {
+            "event_id": "evt-001",
+            "severity": "critical",
+            "processing_status": "success",
+            "edge_site": "pune",
+            "service": "edge-api",
+            "source": "telemetry-smoke-pune"
+          }
+        },
+        {
+          "fixture_id": "app-processing-error",
+          "doc": {
+            "event_id": "evt-002",
+            "severity": "info",
+            "processing_status": "error",
+            "edge_site": "mumbai",
+            "service": "edge-worker",
+            "source": "telemetry-smoke-mumbai"
+          }
+        },
+        {
+          "fixture_id": "app-high-severity-event",
+          "doc": {
+            "event_id": "evt-004",
+            "severity": "high",
+            "processing_status": "success",
+            "edge_site": "bangalore",
+            "service": "edge-api",
+            "source": "telemetry-smoke-bangalore"
+          }
+        }
+      ],
+      "must_not_match": [
+        {
+          "fixture_id": "app-benign-info-event",
+          "doc": {
+            "event_id": "evt-003",
+            "severity": "info",
+            "processing_status": "success",
+            "edge_site": "bangalore",
+            "service": "edge-api",
+            "source": "telemetry-smoke-bangalore"
+          }
+        }
+      ]
+    },
+    "kubesentinel-falco-runtime-alerts-general": {
+      "must_match": [
+        {
+          "fixture_id": "falco-warning-alert",
+          "doc": {
+            "rule": "Terminal shell in container",
+            "priority": "Warning",
+            "source": "syscall",
+            "output": "Warning shell spawned"
+          }
+        },
+        {
+          "fixture_id": "falco-critical-alert",
+          "doc": {
+            "rule": "Write below binary dir",
+            "priority": "Critical",
+            "source": "syscall",
+            "output": "Critical binary write"
+          }
+        },
+        {
+          "fixture_id": "falco-error-alert",
+          "doc": {
+            "rule": "Unexpected syscall error",
+            "priority": "Error",
+            "source": "syscall",
+            "output": "Error syscall condition"
+          }
+        }
+      ],
+      "must_not_match": [
+        {
+          "fixture_id": "falco-informational-noise",
+          "doc": {
+            "rule": "Informational baseline log",
+            "priority": "Informational",
+            "source": "syscall",
+            "output": "Informational startup event"
+          }
+        },
+        {
+          "fixture_id": "falco-notice-noise",
+          "doc": {
+            "rule": "Routine notice event",
+            "priority": "Notice",
+            "source": "syscall",
+            "output": "Notice routine container event"
+          }
+        }
+      ]
+    }
+  }
+}
